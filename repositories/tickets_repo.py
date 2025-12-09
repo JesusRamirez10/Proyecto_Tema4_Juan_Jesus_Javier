@@ -6,8 +6,9 @@ from models.atracciones_model import AtraccionesModel
 from models.visitantes_model import VisitantesModel
 from models.tickets_model import TicketsModel
 
-@staticmethod
-def crear_ticket(visitante_id, fecha_visita, tipo_ticket, detalles_compra_json, atraccion_id):
+class TicketsRepo:
+    @staticmethod
+    def crear_ticket(visitante_id, fecha_visita, tipo_ticket, detalles_compra_json, atraccion_id):
         try:
 
             # Peewee necesita las instancias de los modelos para las claves foraneas
@@ -49,3 +50,37 @@ def crear_ticket(visitante_id, fecha_visita, tipo_ticket, detalles_compra_json, 
             # Captura cualquier otro error desconocido
             print(f"Error desconocido al crear el ticket para visitante {visitante_id}: {e}")
             return None
+        
+    @staticmethod
+    def obtener_todos():
+        try:
+            tickets = TicketsModel.select()
+            return list(tickets)
+        except Exception as e:
+            print(f"Error al obtener todos los tickets: {e}")
+            return []
+    @staticmethod
+    def obtener_tickets_por_visitante(visitante_id):
+        try:
+            visitante_instancia = VisitantesModel.get_by_id(visitante_id)
+            tickets = TicketsModel.select().where(TicketsModel.visitante == visitante_instancia)
+            return list(tickets)
+        except VisitantesModel.DoesNotExist:
+            print(f"Error: El visitante con ID {visitante_id} no existe.")
+            return []
+        except Exception as e:
+            print(f"Error al obtener tickets para el visitante {visitante_id}: {e}")
+            return []
+    @staticmethod
+    def obtener_tickets_por_atraccion(atraccion_id): 
+        try:
+            atraccion_instancia = AtraccionesModel.get_by_id(atraccion_id)
+            tickets = TicketsModel.select().where(TicketsModel.atraccion == atraccion_instancia)
+            return list(tickets)
+        except AtraccionesModel.DoesNotExist:
+            print(f"Error: La atracción con ID {atraccion_id} no existe.")
+            return []
+        except Exception as e:
+            print(f"Error al obtener tickets para la atracción {atraccion_id}: {e}")
+            return []
+    

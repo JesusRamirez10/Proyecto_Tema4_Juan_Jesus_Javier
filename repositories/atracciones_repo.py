@@ -5,8 +5,9 @@ from models.atracciones_model import AtraccionesModel
 from models.visitantes_model import VisitantesModel
 from models.tickets_model import TicketsModel
 
-@staticmethod
-def crear_atraccion(nombre, tipo, altura_minima, detalles_json=None):  
+class AtraccionesRepo:
+    @staticmethod
+    def crear_atraccion(nombre, tipo, altura_minima, detalles_json=None):  
         try:
             # Los datos principales 
             datos_atraccion = {
@@ -29,3 +30,19 @@ def crear_atraccion(nombre, tipo, altura_minima, detalles_json=None):
         except Exception as e:
             print(f"Error desconocido al crear la atracción {nombre}: {e}")
             return None
+    @staticmethod
+    def obtener_todas():
+        try:
+            atracciones = AtraccionesModel.select()
+            return list(atracciones)
+        except Exception as e:
+            print(f"Error al obtener todas las atracciones: {e}")
+            return []
+    @staticmethod
+    def obtener_atracciones_disponibles():
+        try:
+            query = AtraccionesModel.select().where(AtraccionesModel.activa == True)
+            return list(query)
+        except Exception as e:
+            print(f"Error al obtener atracciones disponibles: {e}")
+            return []
