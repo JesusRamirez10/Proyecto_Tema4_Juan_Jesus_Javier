@@ -60,3 +60,31 @@ def cambiar_estado_activo_atraccion(atraccion_id, nuevo_estado: bool):
             # Captura cualquier otro error durante la actualización
             print(f"Error desconocido al cambiar el estado de la atracción ID {atraccion_id}: {e}")
             return None
+        
+@staticmethod
+def eliminar_atraccion(atraccion_id):
+        try:
+            # 1. Intentar obtener el nombre antes de eliminar para un mensaje más claro
+            try:
+                atraccion = AtraccionesModel.get_by_id(atraccion_id)
+                nombre_atraccion = atraccion.nombre
+            except AtraccionesModel.DoesNotExist:
+                print(f"Advertencia: La atracción con ID {atraccion_id} no existe.")
+                return False
+
+            # 2. Eliminar el registro
+            # Usamos delete_instance() de la instancia de Peewee
+            filas_eliminadas = atraccion.delete_instance() 
+            
+            if filas_eliminadas > 0:
+                print(f"Éxito: La atracción '{nombre_atraccion}' (ID {atraccion_id}) fue eliminada.")
+                print(f"Nota: Los tickets que referenciaban esta atracción fueron actualizados para tener atraccion=NULL.")
+                return True
+            else:
+                # Esto solo debería ocurrir si el registro fue eliminado por otra transacción justo antes
+                print(f"Advertencia: No se pudo eliminar la atracción con ID {atraccion_id}.")
+                return False
+                
+        except Exception as e:
+            print(f"Error desconocido al eliminar la atracción ID {atraccion_id}: {e}")
+            return False
