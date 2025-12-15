@@ -49,3 +49,34 @@ def crear_ticket(visitante_id, fecha_visita, tipo_ticket, detalles_compra_json, 
             # Captura cualquier otro error desconocido
             print(f"Error desconocido al crear el ticket para visitante {visitante_id}: {e}")
             return None
+    
+@staticmethod
+def marcar_ticket_usado(ticket_id):
+        try:
+            # 1. Buscar el ticket
+            ticket = TicketsModel.get_by_id(ticket_id)
+            
+            # 2. Verificar si ya fue usado
+            if ticket.usado:
+                print(f"Advertencia: El ticket con ID {ticket_id} ya fue marcado como usado el {ticket.fecha_uso}.")
+                # Devolvemos el ticket existente para evitar una actualización innecesaria
+                return ticket 
+                
+            # 3. Si no ha sido usado, actualizar los campos
+            ticket.usado = True
+            ticket.fecha_uso = datetime.now() # Registramos la fecha y hora de uso
+            
+            # 4. Guardar los cambios en la base de datos
+            ticket.save()
+            
+            print(f"Éxito: Ticket ID {ticket_id} marcado como usado a las {ticket.fecha_uso}.")
+            return ticket
+            
+        except TicketsModel.DoesNotExist:
+            # Captura si el ID del ticket no existe
+            print(f"Error: El ticket con ID {ticket_id} no existe.")
+            return None
+        except Exception as e:
+            # Captura cualquier otro error durante la actualización
+            print(f"Error desconocido al marcar el ticket ID {ticket_id} como usado: {e}")
+            return None

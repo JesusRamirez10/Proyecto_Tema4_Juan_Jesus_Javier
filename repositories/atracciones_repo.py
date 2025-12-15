@@ -29,3 +29,34 @@ def crear_atraccion(nombre, tipo, altura_minima, detalles_json=None):
         except Exception as e:
             print(f"Error desconocido al crear la atracción {nombre}: {e}")
             return None
+        
+@staticmethod
+def cambiar_estado_activo_atraccion(atraccion_id, nuevo_estado: bool):
+        try:
+            # 1. Buscar la instancia de la atracción por ID
+            atraccion = AtraccionesModel.get_by_id(atraccion_id)
+            
+            # 2. Verificar si el estado es el mismo para evitar una operación de guardado innecesaria
+            if atraccion.activa == nuevo_estado:
+                estado_str = "activo" if nuevo_estado else "inactivo"
+                print(f"Advertencia: La atracción '{atraccion.nombre}' (ID {atraccion_id}) ya estaba en estado {estado_str}.")
+                return atraccion
+            
+            # 3. Actualizar el campo 'activa'
+            atraccion.activa = nuevo_estado
+            
+            # 4. Guardar los cambios en la base de datos
+            atraccion.save()
+            
+            estado_str = "activado" if nuevo_estado else "desactivado"
+            print(f"Éxito: La atracción '{atraccion.nombre}' (ID {atraccion_id}) ha sido {estado_str}.")
+            return atraccion
+            
+        except AtraccionesModel.DoesNotExist:
+            # Captura si el ID de la atracción no existe
+            print(f"Error: La atracción con ID {atraccion_id} no existe.")
+            return None
+        except Exception as e:
+            # Captura cualquier otro error durante la actualización
+            print(f"Error desconocido al cambiar el estado de la atracción ID {atraccion_id}: {e}")
+            return None
