@@ -7,12 +7,13 @@ from models.tickets_model import TicketsModel
 
 class VisitantesRepo:
     @staticmethod
-    def crear_visitante(nombre, email, preferencias_json=None):
+    def crear_visitante(nombre, email, altura, preferencias_json=None):
         try:
             # Los datos principales
             datos_visitante = {
                 'nombre': nombre,
-                'email': email
+                'email': email,
+                'altura': altura  # Valor por defecto, se puede actualizar luego
             }
             # Si se ponen preferencias, las añadimos. El campo es 'preferencias'.
             if preferencias_json is not None:

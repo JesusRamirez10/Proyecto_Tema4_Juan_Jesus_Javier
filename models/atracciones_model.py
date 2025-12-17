@@ -3,7 +3,7 @@ from peewee import *
 from playhouse import postgres_ext
 from models.basemodel import BaseModel
 
-tipos_atraccion = (('extrema','Extrema'),('familiar','Familiar')('infantil','Infantil'),('acuatica','Acuatica'),)
+tipos_atraccion = (('extrema','Extrema'),('familiar','Familiar'),('infantil','Infantil'),('acuatica','Acuatica'),)
 
 class AtraccionesModel(BaseModel):
      # Peewee usa AutoField por defecto para IDs primarias autoincrementables
@@ -11,7 +11,7 @@ class AtraccionesModel(BaseModel):
     # CharField con longitud ilimitada 
     nombre = CharField(unique=True,null=False)
     # tipo (string) con restricción de los 4 tipos.
-    tipo = CharField(eleccion=tipos_atraccion,null=False)
+    tipo = CharField(choices=tipos_atraccion,null=False)
     # altura_minima que se guarda en CM
     altura_minima = IntegerField(null=False)
     #detalles(jsonb) con su estructura

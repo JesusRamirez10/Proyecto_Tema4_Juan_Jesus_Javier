@@ -25,7 +25,7 @@ class TicketsModel(BaseModel):
     fecha_visita = DateField(null=False)
     
     # tipo_ticket (string): puede ser “general”, “colegio”, “empleado”
-    tipo_ticket = CharField(eleccion=tipos_ticket, null=False)
+    tipo_ticket = CharField(choices=tipos_ticket, null=False)
     
     # detalles_compra (jsonb)
     detalles_compra = postgres_ext.BinaryJSONField(null=False, default={
