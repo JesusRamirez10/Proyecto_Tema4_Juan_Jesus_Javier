@@ -39,6 +39,8 @@ def menu_visitantes():
             pref_input = input("Quiere ingresar preferencias? (s/n): ")
             if pref_input.lower() == 's':
                 preferencias = input("Ingrese las preferencias en formato JSON: ")
+
+                #Hay que modificar esto.
                 preferencias_json = json.loads(preferencias) if preferencias else None
             elif pref_input.lower() == 'n':
                 preferencias = None
@@ -84,7 +86,7 @@ def main():
 
     print("Base de datos inicializada.")
     init_db = database.inicializar_base([visitantes_model.VisitantesModel, tickets_model.TicketsModel, atracciones_model.AtraccionesModel], reiniciar=True)
-    ingesta.IngestaDatos.ingesta_completa(tickets_por_visitante=3)
+    ingesta.ingesta_completa(tickets_por_visitante=3)
 
 
 
