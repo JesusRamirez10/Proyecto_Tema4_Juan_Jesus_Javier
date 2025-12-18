@@ -112,7 +112,7 @@ def obtener_atracciones_intensidad_alta():
     try:
         # Accedemos a la clave 'intensidad' dentro del JSONB detalles
         query = AtraccionesModel.select().where(
-            AtraccionesModel.detalles['intensidad'] > 7
+            AtraccionesModel.detalles['intensidad'].cast('int') > 7
         )
         return list(query)
     except Exception as e:
@@ -124,7 +124,7 @@ def obtener_atracciones_larga_duracion():
     try:
         # Accedemos a la clave 'duracion_segundos' dentro del JSONB detalles
         query = AtraccionesModel.select().where(
-            AtraccionesModel.detalles['duracion_segundos'] > 120
+            AtraccionesModel.detalles['duracion_segundos'].cast('int') > 120
         )
         return list(query)
     except Exception as e:

@@ -9,8 +9,9 @@ def menu():
     print("1. Seccion de Visitantes")
     print("2. Seccion de Atracciones")
     print("3. Seccion de Tickets")
-    print("4. Salir")
-    input_opcion = int(input("Seleccione una opción (1-4): "))
+    print("4. Funcionalidades varias")
+    print("5. Salir")
+    input_opcion = int(input("Seleccione una opcion (1-4): "))
     match input_opcion:
         case 1:
             menu_visitantes()
@@ -19,10 +20,12 @@ def menu():
         case 3:
             menu_tickets()
         case 4:
+            menu_consultas()
+        case 5:
             print("Saliendo del sistema. ¡Hasta luego!")
             exit(0)
         case _:
-            print("Opción inválida. Por favor, intente de nuevo.")
+            print("Opcion invalida. Por favor, intente de nuevo.")
 
 def menu_visitantes():
     print("Sección de Visitantes")
@@ -117,17 +120,143 @@ def menu_visitantes():
                 
 
 def menu_atracciones():
-    print("Sección de Atracciones")
+    print("\n--- Sección de Atracciones ---")
     print("1. Crear Atracción")
-    print("2. Cambiar Estado Activo de Atracción")
-    print("3. Volver al Menú Principal")
-    input_opcion = input("Seleccione una opción (1-3): ")
+    print("2. Cambiar Estado Activo (Activar/Desactivar)")
+    print("3. Eliminar Atracción")
+    print("4. Listar todas las Atracciones")
+    print("5. Ver Atracciones de Alta Intensidad (>7)")
+    print("6. Ver Atracciones de Larga Duración (>2min)")
+    print("7. Volver al Menú Principal")
+    
+    input_opcion = int(input("Seleccione una opción (1-7): "))
+    
+    match input_opcion:
+        case 1:
+            print("\n--- Nueva Atracción ---")
+            nombre = input("Nombre de la atracción: ")
+            tipo = input("Tipo (extrema, familiar, infantil, acuatica): ")
+            altura_minima = int(input("Altura minima (cm): "))
+            
+            # Configuración de detalles opcionales (JSONB)
+            pref_detalles = input("¿Desea agregar detalles tecnicos (intensidad, duración, etc.)? (s/n): ").lower()
+            detalles_json = None
+            
+            if pref_detalles == 's':
+                intensidad = int(input("Nivel de intensidad (1-10): "))
+                duracion = int(input("Duracion en segundos: "))
+                capacidad = int(input("Capacidad de personas: "))
+                detalles_json = {
+                    "intensidad": intensidad,
+                    "duracion_segundos": duracion,
+                    "capacidad": capacidad
+                }
+
+            nueva_atrac = atracciones_repo.crear_atraccion(nombre, tipo, altura_minima, detalles_json)
+            if nueva_atrac:
+                print(f"Atracción '{nombre}' creada exitosamente.")
+
+        case 2:
+            # Primero listamos para que el usuario vea los IDs y estados actuales
+            atracciones = atracciones_repo.obtener_todas()
+            for a in atracciones:
+                estado = "ACTIVA" if a.activa else "INACTIVA"
+                print(f"ID: {a.id} | {a.nombre} | Estado: {estado}")
+            
+            id_mod = int(input("\nIngrese el ID de la atracción a modificar: "))
+            nuevo_est_input = input("¿Desea activarla? (s) o desactivarla? (n): ").lower()
+            nuevo_estado = True if nuevo_est_input == 's' else False
+            
+            atracciones_repo.cambiar_estado_activo_atraccion(id_mod, nuevo_estado)
+
+        case 3:
+            atracciones = atracciones_repo.obtener_todas()
+            for a in atracciones:
+                print(f"ID: {a.id} | {a.nombre}")
+            
+            id_del = int(input("\nIngrese el ID de la atracción a eliminar: "))
+            confirmar = input(f"¿Está seguro de eliminar la atracción {id_del}? (s/n): ").lower()
+            if confirmar == 's':
+                atracciones_repo.eliminar_atraccion(id_del)
+
+        case 4:
+            print("\n--- Listado Completo ---")
+            atracciones = atracciones_repo.obtener_todas()
+            for a in atracciones:
+                print(f"ID: {a.id} | {a.nombre} | Tipo: {a.tipo} | Altura Min: {a.altura_minima} | Activa: {a.activa}")
+                if a.detalles:
+                    print(f"   Detalles: {a.detalles}")
+
+        case 5:
+            print("\n--- Atracciones de Alta Intensidad ---")
+            intensas = atracciones_repo.obtener_atracciones_intensidad_alta()
+            if intensas:
+                for a in intensas:
+                    print(f"- {a.nombre} (Intensidad: {a.detalles.get('intensidad')})")
+            else:
+                print("No se encontraron atracciones con intensidad > 7.")
+
+        case 6:
+            print("\n--- Atracciones de Larga Duración ---")
+            largas = atracciones_repo.obtener_atracciones_larga_duracion()
+            if largas:
+                for a in largas:
+                    print(f"- {a.nombre} (Duración: {a.detalles.get('duracion_segundos')} seg)")
+            else:
+                print("No se encontraron atracciones con duración > 120 segundos.")
+
+        case 7:
+            return # Regresa al menú principal
+            
+        case _:
+            print("Opción no válida.")
 
 def menu_tickets():
     print("Sección de Tickets")
     print("1. Crear Ticket")
     print("2. Volver al Menú Principal")
     input_opcion = input("Seleccione una opción (1-2): ")
+
+def menu_consultas():
+    print("\n--- FUNCIONALIDADES VARIAS / CONSULTAS ---")
+    print("1. Ver atracciones de alta intensidad (>7)")
+    print("2. Ver atracciones de larga duracion (>2 min)")
+    print("3. Ver solo atracciones activas actualmente")
+    print("4. Volver al menu principal")
+    
+    try:
+        opcion = int(input("Seleccione una consulta (1-4): "))
+    except ValueError:
+        return
+
+    match opcion:
+        case 1:
+            print("\n--- Buscando Atracciones Intensas ---")
+            resultados = atracciones_repo.obtener_atracciones_intensidad_alta()
+            if resultados:
+                for a in resultados:
+                    # Usamos .get() porque 'detalles' es un diccionario JSON
+                    print(f"- {a.nombre}: Intensidad {a.detalles.get('intensidad')}")
+            else:
+                print("No hay atracciones que cumplan el criterio.")
+        
+        case 2:
+            print("\n--- Buscando Atracciones Largas ---")
+            resultados = atracciones_repo.obtener_atracciones_larga_duracion()
+            if resultados:
+                for a in resultados:
+                    print(f"- {a.nombre}: Duracion {a.detalles.get('duracion_segundos')} seg.")
+            else:
+                print("No hay atracciones de larga duracion.")
+
+        case 3:
+            print("\n--- Atracciones Disponibles (Activas) ---")
+            resultados = atracciones_repo.obtener_atracciones_disponibles()
+            for a in resultados:
+                print(f"- {a.nombre} (Tipo: {a.tipo})")
+
+        case 4:
+            return
 
 def main():
 
