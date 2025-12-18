@@ -88,3 +88,21 @@ def eliminar_atraccion(atraccion_id):
         except Exception as e:
             print(f"Error desconocido al eliminar la atracción ID {atraccion_id}: {e}")
             return False
+
+@staticmethod
+def obtener_todas():
+    try:
+        atracciones = AtraccionesModel.select()
+        return list(atracciones)
+    except Exception as e:
+        print(f"Error al obtener todas las atracciones: {e}")
+        return []
+
+@staticmethod
+def obtener_atracciones_disponibles():
+    try:
+        query = AtraccionesModel.select().where(AtraccionesModel.activa == True)
+        return list(query)
+    except Exception as e:
+        print(f"Error al obtener atracciones disponibles: {e}")
+        return []

@@ -80,3 +80,36 @@ def marcar_ticket_usado(ticket_id):
             # Captura cualquier otro error durante la actualización
             print(f"Error desconocido al marcar el ticket ID {ticket_id} como usado: {e}")
             return None
+
+@staticmethod
+    def obtener_todos():
+        try:
+            tickets = TicketsModel.select() #Realiza una consulta para obtener todos los tickets
+            return list(tickets) #Convierte el resultado en una lista y lo devuelve
+        except Exception as e:
+            print(f"Error al obtener todos los tickets: {e}") #Captura cualquier error y lo imprime
+            return []
+    @staticmethod
+    def obtener_tickets_por_visitante(visitante_id):
+        try:
+            visitante_instancia = VisitantesModel.get_by_id(visitante_id)
+            tickets = TicketsModel.select().where(TicketsModel.visitante == visitante_instancia)
+            return list(tickets)
+        except VisitantesModel.DoesNotExist:
+            print(f"Error: El visitante con ID {visitante_id} no existe.")
+            return []
+        except Exception as e:
+            print(f"Error al obtener tickets para el visitante {visitante_id}: {e}")
+            return []
+    @staticmethod
+    def obtener_tickets_por_atraccion(atraccion_id): 
+        try:
+            atraccion_instancia = AtraccionesModel.get_by_id(atraccion_id)
+            tickets = TicketsModel.select().where(TicketsModel.atraccion == atraccion_instancia)
+            return list(tickets)
+        except AtraccionesModel.DoesNotExist:
+            print(f"Error: La atracción con ID {atraccion_id} no existe.")
+            return []
+        except Exception as e:
+            print(f"Error al obtener tickets para la atracción {atraccion_id}: {e}")
+            return []

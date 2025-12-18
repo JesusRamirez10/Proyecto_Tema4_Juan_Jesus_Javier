@@ -58,3 +58,24 @@ def eliminar_visitante(visitante_id):
     except Exception as e:
         print(f"Error desconocido al eliminar el visitante ID {visitante_id}: {e}")
         return False
+
+@staticmethod
+    def obtener_todos():
+        try:
+            visitantes = VisitantesModel.select()
+            return list(visitantes)
+        except Exception as e:
+            print(f"Error al listar todos los visitantes: {e}")
+            return []
+    @staticmethod
+    def obtener_visitantes_con_ticket_para_atraccion(self, atraccion_id):
+        try:
+            query = (VisitantesModel
+                    .select()
+                    .join(TicketsModel)
+                    where(TicketsModel.atraccion == atraccion_id)
+                    )
+            return list(query)
+        except Exception as e:
+            print(f"Error al obtener visitantes con ticket para la atracción {atraccion_id}: {e}")
+            return []
