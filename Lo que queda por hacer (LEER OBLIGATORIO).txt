@@ -1,0 +1,121 @@
+- COMPLETAR EL MENU DE TICKETS (LOS MATCH CASE) 
+
+- HAY UNA COSA QUE ME TIENE MOSCA... 
+    He agregado un par de metodos que agregan o quitan (.append/.pop) horario de mantenimiento.
+    Estan utilizados en el menu atracciones opcion 2. Pero habria que hacer una validacion de que estos datos
+    se hagan con el formato "HH:MM-HH:MM" porque esta metido un simple input y se puede poner cualquier mierda y te lo acepta.
+    Mirad si considerais que hay que hacer esa validacion o lo dejamos como está
+    (tened en cuenta que el profe puede que busque errores tontos como este para bajar nota)
+
+- REVISAR TRAZAS DE IA. SIMBOLITOS Y MIERDAS ASI QUITARLAS Y PRINTS QUE ALOME SEAN INNECESARIOS TAMBIEN. SOBRE-INFO EN LOS COMENTARIOS TAMBIEN QUITARLOS.
+
+
+ msg JUAN: 
+    HAGO LAS CONSULTAS UTILES Y LAS METERE EN EL REPO CORRESPONDIENTE, OS DEJO A VOSOTROS 
+    EL IMPLEMENTARLAS EN LOS MENUS PARA ACCEDER A ESTAS CONSULTAS.
+
+ADEMAS DE ESTO, HE HECHO COMO PODEIS VER EL ARCHIVO DE MENU PARA QUE EL MAIN ESTE MAS LIMPIO.
+SUERTE MUCHACHOS. 
+
+
+def menu_consultas_avanzadas():       INTEGRAR ESTE MENU EN EL MENU_CONSULTAS QUE YA TENEMOS
+    """
+    Menú para ejecutar consultas avanzadas sobre la base de datos
+    """
+    print("\n" + "="*60)
+    print("CONSULTAS AVANZADAS")
+    print("="*60)
+    print("1. Visitantes ordenados por cantidad de tickets")
+    print("2. Top 5 atracciones más vendidas")
+    print("3. Visitantes que gastaron más de 100€")
+    print("4. Atracciones compatibles para un visitante")
+    print("5. Volver al Menú Principal")
+    print("="*60)
+    
+    try:
+        opcion = int(input("Seleccione una opción (1-5): "))
+    except ValueError:
+        print("❌ Opción inválida.")
+        return
+    
+    match opcion:
+        case 1:
+            # Visitantes ordenados por cantidad de tickets
+            print("\n--- Visitantes Ordenados por Tickets ---")
+            resultados = visitantes_repo.obtener_visitantes_ordenados_por_tickets()
+            
+            if resultados:
+                input("\nPresione Enter para continuar...")
+        
+        case 2:
+            # Top 5 atracciones más vendidas
+            print("\n--- Top Atracciones Más Vendidas ---")
+            limite = input("¿Cuántas atracciones desea ver? (por defecto 5): ").strip()
+            
+            if limite and limite.isdigit():
+                limite = int(limite)
+            else:
+                limite = 5
+            
+            resultados = atracciones_repo.obtener_top_atracciones_mas_vendidas(limite)
+            
+            if resultados:
+                input("\nPresione Enter para continuar...")
+        
+        case 3:
+            # Visitantes que gastaron más de X€
+            print("\n--- Visitantes por Gasto Total ---")
+            cantidad = input("Ingrese la cantidad mínima gastada (por defecto 100€): ").strip()
+            
+            if cantidad and cantidad.replace('.', '').isdigit():
+                cantidad = float(cantidad)
+            else:
+                cantidad = 100.0
+            
+            resultados = visitantes_repo.obtener_visitantes_gasto_mayor_a(cantidad)
+            
+            if resultados:
+                input("\nPresione Enter para continuar...")
+        
+        case 4:
+            # Atracciones compatibles para un visitante
+            print("\n--- Atracciones Compatibles ---")
+            
+            # Listar visitantes primero
+            visitantes = visitantes_repo.obtener_todos()
+            
+            if not visitantes:
+                print("No hay visitantes registrados.")
+                return
+            
+            print("\nVisitantes disponibles:")
+            for v in visitantes[:10]:  # Mostrar solo primeros 10
+                tipo_fav = ""
+                if v.preferencias:
+                    tipo_fav = v.preferencias.get('tipo_favorito', '')
+                    tipo_fav = f" | Tipo favorito: {tipo_fav}" if tipo_fav else ""
+                
+                print(f"ID: {v.id} | {v.nombre} | Altura: {v.altura}cm{tipo_fav}")
+            
+            try:
+                visitante_id = int(input("\nIngrese el ID del visitante: "))
+                resultados = atracciones_repo.obtener_atracciones_compatibles_visitante(visitante_id)
+                
+                if resultados:
+                    input("\nPresione Enter para continuar...")
+            except ValueError:
+                print("❌ ID inválido.")
+        
+        case 5:
+            print("\nVolviendo al menú principal...")
+            return
+        
+        case _:
+            print("❌ Opción inválida.")
+
+
+
+
+
+
+

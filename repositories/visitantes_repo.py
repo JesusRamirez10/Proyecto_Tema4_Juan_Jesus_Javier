@@ -190,3 +190,86 @@ def agregar_visita_historial(visitante_id, nombre_atraccion):
     except Exception as e:
         print(f"❌ Error al agregar visita al historial del visitante ID {visitante_id}: {e}")
         return None
+    
+
+@staticmethod
+def obtener_visitantes_ordenados_por_tickets():
+    """
+    Lista visitantes ordenados por cantidad total de tickets comprados (descendente)
+    Usa JOIN con la tabla tickets y cuenta cuántos tickets tiene cada visitante
+    """
+    try:
+        
+        
+        # Consulta con JOIN, GROUP BY y ORDER BY
+        query = (VisitantesModel
+                .select(
+                    VisitantesModel,
+                    fn.COUNT(TicketsModel.id).alias('total_tickets')
+                )
+                .join(TicketsModel, JOIN.LEFT_OUTER)  # LEFT JOIN para incluir visitantes sin tickets
+                .group_by(VisitantesModel)
+                .order_by(fn.COUNT(TicketsModel.id).desc()))
+        
+        resultados = []
+        print("\n" + "="*50)
+        print("VISITANTES ORDENADOS POR CANTIDAD DE TICKETS")
+        print("="*50)
+        
+        for i, visitante in enumerate(query, 1):
+            total = visitante.total_tickets
+            resultados.append({
+                'visitante': visitante,
+                'total_tickets': total
+            })
+            print(f"{i}. {visitante.nombre} | Email: {visitante.email} | Tickets: {total}")
+        
+        print("="*50)
+        return resultados
+        
+    except Exception as e:
+        print(f"❌ Error al obtener visitantes ordenados por tickets: {e}")
+        return []
+
+
+@staticmethod
+def obtener_visitantes_gasto_mayor_a(cantidad_minima=100):
+    """
+    Obtiene visitantes que hayan gastado más de X€ en tickets
+    Suma los precios en detalles_compra->precio de todos sus tickets
+    
+    Args:
+        cantidad_minima: Cantidad mínima gastada (default: 100€)
+    """
+    try:
+        
+        # Consulta que suma los precios del JSONB
+        query = (VisitantesModel
+                .select(
+                    VisitantesModel,
+                    fn.SUM(TicketsModel.detalles_compra['precio'].cast('float')).alias('gasto_total')
+                )
+                .join(TicketsModel, JOIN.LEFT_OUTER)
+                .group_by(VisitantesModel)
+                .having(fn.SUM(TicketsModel.detalles_compra['precio'].cast('float')) > cantidad_minima)
+                .order_by(fn.SUM(TicketsModel.detalles_compra['precio'].cast('float')).desc()))
+        
+        resultados = []
+        print("\n" + "="*60)
+        print(f"VISITANTES QUE GASTARON MÁS DE {cantidad_minima}€")
+        print("="*60)
+        
+        for i, visitante in enumerate(query, 1):
+            gasto = float(visitante.gasto_total) if visitante.gasto_total else 0
+            resultados.append({
+                'visitante': visitante,
+                'gasto_total': gasto
+            })
+            print(f"{i}. {visitante.nombre} | Gasto total: {gasto:.2f}€")
+        
+        print("="*60)
+        return resultados
+        
+    except Exception as e:
+        print(f"❌ Error al obtener visitantes por gasto: {e}")
+        return []
