@@ -37,17 +37,64 @@ def menu_visitantes():
             email = input("Ingrese el email del visitante: ")
             altura = int(input("Ingrese la altura del visitante en cm: "))
             pref_input = input("Quiere ingresar preferencias? (s/n): ")
-            if pref_input.lower() == 's':
-                preferencias = input("Ingrese las preferencias en formato JSON: ")
-
-                #Hay que modificar esto.
-                preferencias_json = json.loads(preferencias) if preferencias else None
-            elif pref_input.lower() == 'n':
-                preferencias = None
+            preferencias_json = None
+            
+            if pref_input == 's':
+                print("\n--- Configurando Preferencias ---")
+                
+                # 1. Tipo favorito
+                print("\nTipos de atracciones disponibles:")
+                print("  - extrema")
+                print("  - familiar")
+                print("  - infantil")
+                print("  - acuatica")
+                tipo_favorito = input("Ingrese el tipo de atracción favorito: ").strip()
+                
+                # 2. Restricciones
+                print("\n¿El visitante tiene restricciones? (altura, mareos, claustrofobia, agua, etc.)")
+                restricciones_input = input("Ingrese las restricciones separadas por comas (o presione Enter si no tiene): ").strip()
+                
+                if restricciones_input:
+                    restricciones = [r.strip() for r in restricciones_input.split(',') if r.strip()]
+                else:
+                    restricciones = []
+                
+                # 3. Historial de visitas (normalmente vacío para un visitante nuevo)
+                print("\n¿Desea agregar visitas previas al historial? (s/n): ")
+                agregar_historial = input().strip().lower()
+                
+                historial_visitas = []
+                if agregar_historial == 's':
+                    print("Ingrese las visitas previas (nombre de atracción), una por línea.")
+                    print("Escriba 'fin' cuando termine:")
+                    while True:
+                        visita = input("  Visita: ").strip()
+                        if visita.lower() == 'fin' or visita == '':
+                            break
+                        if visita:
+                            historial_visitas.append(visita)
+                
+                # Construir el JSON de preferencias
+                preferencias_json = {
+                    "tipo_favorito": tipo_favorito,
+                    "restricciones": restricciones,
+                    "historial_visitas": historial_visitas
+                }
+                
+                print("\n--- Preferencias configuradas ---")
+                print(f"Tipo favorito: {tipo_favorito}")
+                print(f"Restricciones: {restricciones if restricciones else 'Ninguna'}")
+                print(f"Historial: {len(historial_visitas)} visita(s) previa(s)")
+            
+            elif pref_input == 'n':
+                print("\nNo se ingresarán preferencias.")
                 preferencias_json = None
             else:
-                print("Opción inválida. No se ingresarán preferencias.")
-                preferencias = None
+                print("\nOpción inválida. No se ingresarán preferencias.")
+                preferencias_json = None
+            
+            # Crear el visitante
+            visitante_creado = visitantes_repo.crear_visitante(nombre, email, altura, preferencias_json)
             visitantes_repo.crear_visitante(nombre, email, altura, preferencias_json)
             print(f"Visitante creado con nombre: {nombre}, email: {email}, altura: {altura}, preferencias: {preferencias_json}")
         case 2:
