@@ -1,4 +1,5 @@
 import database
+import ingesta
 from repositories import atracciones_repo, visitantes_repo, tickets_repo
 from models import atracciones_model, visitantes_model, tickets_model
 from peewee import *
@@ -9,15 +10,15 @@ def menu():
     print("2. Seccion de Atracciones")
     print("3. Seccion de Tickets")
     print("4. Salir")
-    input_opcion = input("Seleccione una opción (1-4): ")
+    input_opcion = int(input("Seleccione una opción (1-4): "))
     match input_opcion:
-        case '1':
+        case 1:
             menu_visitantes()
-        case '2':
+        case 2:
             menu_atracciones()
-        case '3':
+        case 3:
             menu_tickets()
-        case '4':
+        case 4:
             print("Saliendo del sistema. ¡Hasta luego!")
             exit(0)
         case _:
@@ -44,7 +45,7 @@ def menu_visitantes():
             else:
                 print("Opción inválida. No se ingresarán preferencias.")
                 preferencias = None
-
+                visitantes_repo.crear_visitante(nombre, email, altura, preferencias_json)
         case 2:
 
             visitante_id = int(input("Ingrese el ID del visitante a eliminar: "))
@@ -73,9 +74,7 @@ def menu_tickets():
 def main():
 
     init_db = database.inicializar_base([visitantes_model.VisitantesModel, tickets_model.TicketsModel, atracciones_model.AtraccionesModel], reiniciar=True)
-    visitante = visitantes_repo.crear_visitante('Juan Perez', 'juan.perez@example.com', 180) #nombre, email, altura, preferencias_json=None
-    atraccion = atracciones_repo.crear_atraccion('Montaña Rusa', 'extrema', 140)  #nombre, tipo, altura_minima, detalles_json=None
-    ticket = tickets_repo.crear_ticket(visitante.id, datetime.now().date(), 'general', {}, atraccion.id)  #visitante_id, fecha_visita, tipo_ticket, detalles_compra_json, atraccion_id
+    ingesta.IngestaDatos.ingesta_completa(tickets_por_visitante=3)
 
 
     print("Base de datos inicializada.")
