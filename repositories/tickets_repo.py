@@ -89,6 +89,18 @@ def obtener_todos():
         except Exception as e:
             print(f"Error al obtener todos los tickets: {e}") #Captura cualquier error y lo imprime
             return []
+        
+@staticmethod
+def obtener_un_ticket(ticket_id):
+        try:
+            ticket = TicketsModel.get_by_id(ticket_id)
+            return ticket
+        except TicketsModel.DoesNotExist:
+            print(f"Error: El ticket con ID {ticket_id} no existe.")
+            return None
+        except Exception as e:
+            print(f"Error al obtener el ticket {ticket_id}: {e}")
+            return None
 @staticmethod
 def obtener_tickets_por_visitante(visitante_id):
         try:
@@ -131,38 +143,38 @@ def obtener_tickets_colegio_economicos():
     
 
 @staticmethod
-def cambiar_precio_ticket(ticket_id: int, nuevo_precio: float) -> bool:
+def cambiar_precio_ticket(ticket_id, nuevo_precio):
     """
-    Cambia el precio de un ticket existente.
-
-    :param ticket_id: ID del ticket
-    :param nuevo_precio: Nuevo precio del ticket
-    :return: True si se actualiza correctamente, False en caso contrario
+    Cambia el precio en detalles_compra de un ticket específico
     """
-
-    # Validación básica
-    if not isinstance(nuevo_precio, (int, float)) or nuevo_precio < 0:
-        return False
-
     try:
-        with db.atomic():
-            ticket = TicketsModel.get(TicketsModel.id == ticket_id)
-
-            # Copiamos el JSON actual
-            detalles = dict(ticket.detalles_compra)
-
-            # Actualizamos solo el precio
-            detalles['precio'] = float(nuevo_precio)
-
-            ticket.detalles_compra = detalles
-            ticket.save()
-
-            return True
-
-    except DoesNotExist:
-        # Ticket no encontrado
-        return False
-
+        # 1. Obtener el ticket
+        ticket = TicketsModel.get_by_id(ticket_id)
+        
+        # 2. Obtener los detalles actuales
+        detalles = ticket.detalles_compra
+        
+        # 3. Guardar el precio anterior para información
+        precio_anterior = detalles.get('precio', 0)
+        
+        # 4. Modificar el precio en el diccionario
+        detalles['precio'] = nuevo_precio
+        
+        # 5. Actualizar el campo JSONB completo
+        ticket.detalles_compra = detalles
+        
+        # 6. Guardar los cambios
+        ticket.save()
+        
+        print(f"✅ Precio del ticket ID {ticket_id} actualizado:")
+        print(f"   Precio anterior: ${precio_anterior}")
+        print(f"   Precio nuevo: ${nuevo_precio}")
+        
+        return ticket
+        
+    except TicketsModel.DoesNotExist:
+        print(f"❌ Error: El ticket con ID {ticket_id} no existe.")
+        return None
     except Exception as e:
-        print(f"Error al cambiar el precio del ticket: {e}")
-        return False
+        print(f"❌ Error al cambiar el precio del ticket ID {ticket_id}: {e}")
+        return None

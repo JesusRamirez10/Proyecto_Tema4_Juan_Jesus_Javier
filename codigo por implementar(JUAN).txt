@@ -1,0 +1,101 @@
+def menu_operaciones_jsonb():
+    """
+    Menú para operaciones especiales sobre campos JSONB
+    """
+    print("\n" + "="*50)
+    print("Operaciones sobre Campos JSONB")
+    print("="*50)
+    print("1. Cambiar precio de un ticket")
+    print("2. Eliminar restricción de un visitante")
+    print("3. Agregar característica a una atracción")
+    print("4. Agregar visita al historial de un visitante")
+    print("5. Volver al Menú Principal")
+    print("="*50)
+    
+    opcion = int(input("Seleccione una opción (1-5): "))
+    
+    match opcion:
+        case 1:
+            # Cambiar precio de ticket
+            print("\n--- Cambiar Precio de Ticket ---")
+            tickets = tickets_repo.obtener_todos()
+            if not tickets:
+                print("No hay tickets registrados.")
+                return
+            
+            print("\nTickets disponibles:")
+            for t in tickets[:10]:  # Mostrar solo los primeros 10
+                print(f"ID: {t.id} | Visitante: {t.visitante.nombre} | Precio actual: ${t.detalles_compra.get('precio', 0)}")
+            
+            ticket_id = int(input("\nIngrese el ID del ticket: "))
+            nuevo_precio = float(input("Ingrese el nuevo precio: "))
+            
+            tickets_repo.cambiar_precio_ticket(ticket_id, nuevo_precio)
+        
+        case 2:
+            # Eliminar restricción de visitante
+            print("\n--- Eliminar Restricción de Visitante ---")
+            visitantes = visitantes_repo.obtener_todos()
+            if not visitantes:
+                print("No hay visitantes registrados.")
+                return
+            
+            print("\nVisitantes con restricciones:")
+            for v in visitantes:
+                if v.preferencias and v.preferencias.get('restricciones'):
+                    restricciones = v.preferencias.get('restricciones', [])
+                    print(f"ID: {v.id} | Nombre: {v.nombre} | Restricciones: {restricciones}")
+            
+            visitante_id = int(input("\nIngrese el ID del visitante: "))
+            restriccion = input("Ingrese la restricción a eliminar: ")
+            
+            visitantes_repo.eliminar_restriccion_visitante(visitante_id, restriccion)
+        
+        case 3:
+            # Agregar característica a atracción
+            print("\n--- Agregar Característica a Atracción ---")
+            atracciones = atracciones_repo.obtener_todas()
+            if not atracciones:
+                print("No hay atracciones registradas.")
+                return
+            
+            print("\nAtracciones disponibles:")
+            for a in atracciones:
+                caracteristicas = a.detalles.get('caracteristicas', []) if a.detalles else []
+                print(f"ID: {a.id} | Nombre: {a.nombre} | Características actuales: {len(caracteristicas)}")
+            
+            atraccion_id = int(input("\nIngrese el ID de la atracción: "))
+            nueva_caracteristica = input("Ingrese la nueva característica: ")
+            
+            atracciones_repo.agregar_caracteristica_atraccion(atraccion_id, nueva_caracteristica)
+        
+        case 4:
+            # Agregar visita al historial
+            print("\n--- Agregar Visita al Historial ---")
+            visitantes = visitantes_repo.obtener_todos()
+            if not visitantes:
+                print("No hay visitantes registrados.")
+                return
+            
+            print("\nVisitantes disponibles:")
+            for v in visitantes[:10]:  # Mostrar solo los primeros 10
+                historial = v.preferencias.get('historial_visitas', []) if v.preferencias else []
+                print(f"ID: {v.id} | Nombre: {v.nombre} | Visitas en historial: {len(historial)}")
+            
+            visitante_id = int(input("\nIngrese el ID del visitante: "))
+            
+            atracciones = atracciones_repo.obtener_todas()
+            print("\nAtracciones disponibles:")
+            for a in atracciones:
+                print(f"  - {a.nombre}")
+            
+            nombre_atraccion = input("\nIngrese el nombre de la atracción visitada: ")
+            
+            visitantes_repo.agregar_visita_historial(visitante_id, nombre_atraccion)
+        
+        case 5:
+            print("\nVolviendo al menú principal...")
+            return
+        
+        case _:
+            print("\n❌ Opción inválida.")

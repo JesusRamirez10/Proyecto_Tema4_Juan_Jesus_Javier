@@ -93,34 +93,36 @@ TICKETS_CONFIG = {
     'general': {
         'precio': 45.00,
         'descuentos': [],
-        'extras': ['fast_pass', 'foto'],
-        'metodo_pago': ''
+        'extras': ['fast_pass', 'foto']
     },
     'colegio': {
         'precio': 25.00,
         'descuentos': ['descuento_grupo'],
-        'extras': ['almuerzo'],
-        'metodo_pago': ''
+        'extras': ['almuerzo']
     },
     'empleado': {
         'precio': 15.00,
         'descuentos': ['descuento_empleado'],
-        'extras': [],
-        'metodo_pago': ''
+        'extras': []
     }
 }
 
 
-def crear_visitantes():
-    """Crea todos los visitantes predefinidos usando visitantes_repo"""
+def ingesta_completa(tickets_por_visitante=2):
+    """Ejecuta la ingesta completa de datos usando directamente los repositorios"""
+    print("\n" + "="*50)
+    print("🎢 INICIANDO INGESTA DE DATOS DEL PARQUE DE ATRACCIONES 🎢")
+    print("="*50)
+    
+    # ============================================
+    # 1. CREAR VISITANTES
+    # ============================================
     print(f"\n{'='*50}")
     print(f"Creando {len(VISITANTES)} visitantes...")
     print(f"{'='*50}")
     
     visitantes = []
-    
     for i, v_data in enumerate(VISITANTES):
-        # Usar el método del repositorio
         visitante = visitantes_repo.crear_visitante(
             nombre=v_data['nombre'],
             email=v_data['email'],
@@ -135,19 +137,16 @@ def crear_visitantes():
             print(f"❌ Error creando visitante: {v_data['nombre']}")
     
     print(f"\n✅ Total visitantes creados: {len(visitantes)}")
-    return visitantes
-
-
-def crear_atracciones():
-    """Crea todas las atracciones predefinidas usando atracciones_repo"""
+    
+    # ============================================
+    # 2. CREAR ATRACCIONES
+    # ============================================
     print(f"\n{'='*50}")
     print(f"Creando {len(ATRACCIONES)} atracciones...")
     print(f"{'='*50}")
     
     atracciones = []
-    
     for i, a_data in enumerate(ATRACCIONES):
-        # Usar el método del repositorio
         atraccion = atracciones_repo.crear_atraccion(
             nombre=a_data['nombre'],
             tipo=a_data['tipo'],
@@ -162,11 +161,10 @@ def crear_atracciones():
             print(f"❌ Error creando atracción: {a_data['nombre']}")
     
     print(f"\n✅ Total atracciones creadas: {len(atracciones)}")
-    return atracciones
-
-
-def crear_tickets(visitantes, atracciones, tickets_por_visitante=2):
-    """Crea tickets para los visitantes usando tickets_repo"""
+    
+    # ============================================
+    # 3. CREAR TICKETS
+    # ============================================
     print(f"\n{'='*50}")
     print(f"Creando tickets (aprox. {tickets_por_visitante} por visitante)...")
     print(f"{'='*50}")
@@ -201,7 +199,7 @@ def crear_tickets(visitantes, atracciones, tickets_por_visitante=2):
                 'metodo_pago': random.choice(['efectivo', 'tarjeta', 'app'])
             }
             
-            # Usar el método del repositorio
+            # Crear ticket usando el repositorio
             ticket = tickets_repo.crear_ticket(
                 visitante_id=visitante.id,
                 fecha_visita=fecha_visita,
@@ -218,25 +216,10 @@ def crear_tickets(visitantes, atracciones, tickets_por_visitante=2):
                 print(f"❌ Error creando ticket para {visitante.nombre}")
     
     print(f"\n✅ Total tickets creados: {len(tickets)}")
-    return tickets
-
-
-def ingesta_completa(tickets_por_visitante=2):
-    """Ejecuta la ingesta completa de datos"""
-    print("\n" + "="*50)
-    print("🎢 INICIANDO INGESTA DE DATOS DEL PARQUE DE ATRACCIONES 🎢")
-    print("="*50)
     
-    # Crear visitantes usando visitantes_repo
-    visitantes = crear_visitantes()
-    
-    # Crear atracciones usando atracciones_repo
-    atracciones = crear_atracciones()
-    
-    # Crear tickets usando tickets_repo
-    tickets = crear_tickets(visitantes, atracciones, tickets_por_visitante)
-    
-    # Resumen final
+    # ============================================
+    # 4. RESUMEN FINAL
+    # ============================================
     print(f"\n{'='*50}")
     print("📊 RESUMEN DE LA INGESTA")
     print(f"{'='*50}")

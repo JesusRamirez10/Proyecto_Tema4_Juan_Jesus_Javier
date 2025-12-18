@@ -130,3 +130,61 @@ def obtener_atracciones_larga_duracion():
     except Exception as e:
         print(f"Error al obtener atracciones de larga duración: {e}")
         return []
+    
+
+@staticmethod
+def agregar_caracteristica_atraccion(atraccion_id, nueva_caracteristica):
+    """
+    Añade una nueva característica al array de características de una atracción
+    """
+    try:
+        # 1. Obtener la atracción
+        atraccion = AtraccionesModel.get_by_id(atraccion_id)
+        
+        # 2. Verificar que tenga detalles, si no, crearlos
+        if not atraccion.detalles:
+            atraccion.detalles = {
+                'duracion_segundos': 0,
+                'capacidad_por_turno': 0,
+                'intensidad': 0,
+                'caracteristicas': [],
+                'horarios': {
+                    'apertura': '',
+                    'cierre': '',
+                    'mantenimiento': []
+                }
+            }
+        
+        # 3. Obtener los detalles actuales
+        detalles = atraccion.detalles
+        
+        # 4. Obtener el array de características
+        caracteristicas = detalles.get('caracteristicas', [])
+        
+        # 5. Verificar si la característica ya existe (evitar duplicados)
+        if nueva_caracteristica in caracteristicas:
+            print(f"⚠️ La característica '{nueva_caracteristica}' ya existe en la atracción '{atraccion.nombre}'.")
+            return atraccion
+        
+        # 6. Añadir la nueva característica
+        caracteristicas.append(nueva_caracteristica)
+        
+        # 7. Actualizar los detalles
+        detalles['caracteristicas'] = caracteristicas
+        atraccion.detalles = detalles
+        
+        # 8. Guardar los cambios
+        atraccion.save()
+        
+        print(f"✅ Característica agregada a la atracción '{atraccion.nombre}' (ID {atraccion_id}).")
+        print(f"   Nueva característica: {nueva_caracteristica}")
+        print(f"   Total características: {len(caracteristicas)}")
+        
+        return atraccion
+        
+    except AtraccionesModel.DoesNotExist:
+        print(f"❌ Error: La atracción con ID {atraccion_id} no existe.")
+        return None
+    except Exception as e:
+        print(f"❌ Error al agregar característica a la atracción ID {atraccion_id}: {e}")
+        return None

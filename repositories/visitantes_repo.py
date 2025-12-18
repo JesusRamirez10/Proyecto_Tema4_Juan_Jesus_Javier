@@ -1,5 +1,6 @@
 import json
 from peewee import *
+from datetime import datetime
 from playhouse.postgres_ext import *
 from models.atracciones_model import AtraccionesModel
 from models.visitantes_model import VisitantesModel
@@ -91,3 +92,101 @@ def obtener_visitantes_preferencia_extrema():
         print(f"Error al obtener visitantes con preferencia extrema: {e}")
         return []
 
+@staticmethod
+def eliminar_restriccion_visitante(visitante_id, restriccion):
+    """
+    Elimina una restricción específica del array de restricciones de un visitante
+    """
+    try:
+        # 1. Obtener el visitante
+        visitante = VisitantesModel.get_by_id(visitante_id)
+        
+        # 2. Verificar que tenga preferencias
+        if not visitante.preferencias:
+            print(f"⚠️ El visitante ID {visitante_id} no tiene preferencias configuradas.")
+            return None
+        
+        # 3. Obtener las preferencias actuales
+        preferencias = visitante.preferencias
+        
+        # 4. Obtener el array de restricciones
+        restricciones = preferencias.get('restricciones', [])
+        
+        # 5. Verificar si la restricción existe
+        if restriccion not in restricciones:
+            print(f"⚠️ La restricción '{restriccion}' no existe en el visitante ID {visitante_id}.")
+            print(f"   Restricciones actuales: {restricciones}")
+            return visitante
+        
+        # 6. Eliminar la restricción del array
+        restricciones.remove(restriccion)
+        
+        # 7. Actualizar las preferencias
+        preferencias['restricciones'] = restricciones
+        visitante.preferencias = preferencias
+        
+        # 8. Guardar los cambios
+        visitante.save()
+        
+        print(f"✅ Restricción '{restriccion}' eliminada del visitante '{visitante.nombre}' (ID {visitante_id}).")
+        print(f"   Restricciones restantes: {restricciones if restricciones else 'Ninguna'}")
+        
+        return visitante
+        
+    except VisitantesModel.DoesNotExist:
+        print(f"❌ Error: El visitante con ID {visitante_id} no existe.")
+        return None
+    except Exception as e:
+        print(f"❌ Error al eliminar restricción del visitante ID {visitante_id}: {e}")
+        return None
+
+
+@staticmethod
+def agregar_visita_historial(visitante_id, nombre_atraccion):
+    """
+    Añade una nueva visita al historial de visitas de un visitante
+    """
+    try:
+        # 1. Obtener el visitante
+        visitante = VisitantesModel.get_by_id(visitante_id)
+        
+        # 2. Verificar que tenga preferencias, si no, crearlas
+        if not visitante.preferencias:
+            visitante.preferencias = {
+                'tipo_favorito': '',
+                'restricciones': [],
+                'historial_visitas': []
+            }
+        
+        # 3. Obtener las preferencias actuales
+        preferencias = visitante.preferencias
+        
+        # 4. Obtener el array de historial
+        historial = preferencias.get('historial_visitas', [])
+        
+        # 5. Añadir la nueva visita con timestamp
+        nueva_visita = {
+            'atraccion': nombre_atraccion,
+            'fecha': datetime.now().isoformat()
+        }
+        historial.append(nueva_visita)
+        
+        # 6. Actualizar las preferencias
+        preferencias['historial_visitas'] = historial
+        visitante.preferencias = preferencias
+        
+        # 7. Guardar los cambios
+        visitante.save()
+        
+        print(f"✅ Visita agregada al historial del visitante '{visitante.nombre}' (ID {visitante_id}).")
+        print(f"   Atracción visitada: {nombre_atraccion}")
+        print(f"   Total visitas en historial: {len(historial)}")
+        
+        return visitante
+        
+    except VisitantesModel.DoesNotExist:
+        print(f"❌ Error: El visitante con ID {visitante_id} no existe.")
+        return None
+    except Exception as e:
+        print(f"❌ Error al agregar visita al historial del visitante ID {visitante_id}: {e}")
+        return None

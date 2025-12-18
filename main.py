@@ -42,8 +42,10 @@ def menu_visitantes():
     print("1. Crear Visitante")
     print("2. Eliminar Visitante")
     print("3. Listar todos los Visitantes")
-    print("4. Volver al Menú Principal")
-    input_opcion = int(input("Seleccione una opción (1-4): "))
+    print("4. Eliminar restricción de un visitante")
+    print("5. Agregar visita al historial de un visitante")
+    print("6. Volver al Menú Principal")
+    input_opcion = int(input("Seleccione una opción (1-5): "))
     match input_opcion:
         case 1:
             nombre = input("Ingrese el nombre del visitante: ")
@@ -127,7 +129,46 @@ def menu_visitantes():
             visitantes = visitantes_repo.obtener_todos()
             for v in visitantes:
                 print(f"ID: {v.id}, Nombre: {v.nombre}, Email: {v.email}, Altura: {v.altura}, Preferencias: {v.preferencias}")
-                
+        case 4:
+            print("\n--- Eliminar Restricción de Visitante ---")
+            visitantes = visitantes_repo.obtener_todos()
+            if not visitantes:
+                print("No hay visitantes registrados.")
+                return
+            
+            print("\nVisitantes con restricciones:")
+            for v in visitantes:
+                if v.preferencias and v.preferencias.get('restricciones'):
+                    restricciones = v.preferencias.get('restricciones', [])
+                    print(f"ID: {v.id} | Nombre: {v.nombre} | Restricciones: {restricciones}")
+            
+            visitante_id = int(input("\nIngrese el ID del visitante: "))
+            restriccion = input("Ingrese la restricción a eliminar: ")
+            
+            visitantes_repo.eliminar_restriccion_visitante(visitante_id, restriccion)
+        case 5:
+            print("\n--- Agregar Visita al Historial ---")
+            visitantes = visitantes_repo.obtener_todos()
+            if not visitantes:
+                print("No hay visitantes registrados.")
+                return
+            
+            print("\nVisitantes disponibles:")
+            for v in visitantes[:10]:  # Mostrar solo los primeros 10
+                historial = v.preferencias.get('historial_visitas', []) if v.preferencias else []
+                print(f"ID: {v.id} | Nombre: {v.nombre} | Visitas en historial: {len(historial)}")
+            
+            visitante_id = int(input("\nIngrese el ID del visitante: "))
+            
+            atracciones = atracciones_repo.obtener_todas()
+            print("\nAtracciones disponibles:")
+            for a in atracciones:
+                print(f"  - {a.nombre}")
+            
+            nombre_atraccion = input("\nIngrese el nombre de la atracción visitada: ")
+            
+            visitantes_repo.agregar_visita_historial(visitante_id, nombre_atraccion)
+        
 
 def menu_atracciones():
     print("\n--- Sección de Atracciones ---")
@@ -222,10 +263,43 @@ def menu_atracciones():
             print("Opción no válida.")
 
 def menu_tickets():
+# Falta Marcar un ticket como usado (actualizar usado a True y poner fecha_uso) 
+#
     print("Sección de Tickets")
     print("1. Crear Ticket")
     print("2. Volver al Menú Principal")
-    input_opcion = input("Seleccione una opción (1-2): ")
+    print("3. Obtener todos")
+    print("4. Obtener ticket por ID")
+    print("5. Cambiar precio de un ticket")
+    input_opcion = int(input("Seleccione una opción (1-2): "))
+    match input_opcion:
+        case 3:
+            print("\n--- Listado Completo de Tickets ---")
+            tickets = tickets_repo.obtener_todos()
+            for t in tickets:
+                print(f"ID: {t.id}, Tipo: {t.tipo_ticket}, Detalles: {t.detalles_compra}")
+        case 4:
+            ticket_id = int(input("Ingrese el ID del ticket a buscar: "))
+            ticket = tickets_repo.obtener_un_ticket(ticket_id)
+            if ticket:
+                print(f"Ticket: ID: {ticket.id}, Tipo: {ticket.tipo_ticket}, Detalles: {ticket.detalles_compra}")
+            else:
+                print(f"No se encontró ningún ticket con ID {ticket_id}.")
+        case 5:
+            print("\n--- Cambiar Precio de Ticket ---")
+            tickets = tickets_repo.obtener_todos()
+            if not tickets:
+                print("No hay tickets registrados.")
+                return
+            for t in tickets:
+                precio = t.detalles_compra.get('precio', 'No especificado')
+                print(f"ID: {t.id}, Tipo: {t.tipo_ticket}, Precio Actual: {precio}")
+            ticket_id = int(input("Ingrese el ID del ticket a modificar: "))
+            ticket_seleccionado = tickets_repo.obtener_un_ticket(ticket_id)
+            print(f"Ticket seleccionado: ID {ticket_seleccionado.id}, Tipo: {ticket_seleccionado.tipo_ticket}, Precio Actual: {ticket_seleccionado.detalles_compra.get('precio', 'No especificado')}")
+            nuevo_precio = float(input("Ingrese el nuevo precio: "))
+            tickets_repo.cambiar_precio_ticket(ticket_id, nuevo_precio)
+
 
 def menu_consultas():
     print("\n--- FUNCIONALIDADES VARIAS / CONSULTAS ---")
