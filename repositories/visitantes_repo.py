@@ -68,7 +68,7 @@ def obtener_todos():
             print(f"Error al listar todos los visitantes: {e}")
             return []
 @staticmethod
-def obtener_visitantes_con_ticket_para_atraccion(self, atraccion_id):
+def obtener_visitantes_con_ticket_para_atraccion( atraccion_id):
         try:
             query = (VisitantesModel
             .select()
