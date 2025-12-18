@@ -88,3 +88,27 @@ def eliminar_atraccion(atraccion_id):
         except Exception as e:
             print(f"Error desconocido al eliminar la atracción ID {atraccion_id}: {e}")
             return False
+        
+@staticmethod
+def obtener_atracciones_intensidad_alta():
+    try:
+        # Accedemos a la clave 'intensidad' dentro del JSONB detalles
+        query = AtraccionesModel.select().where(
+            AtraccionesModel.detalles['intensidad'] > 7
+        )
+        return list(query)
+    except Exception as e:
+        print(f"Error al obtener atracciones de alta intensidad: {e}")
+        return []
+    
+@staticmethod
+def obtener_atracciones_larga_duracion():
+    try:
+        # Accedemos a la clave 'duracion_segundos' dentro del JSONB detalles
+        query = AtraccionesModel.select().where(
+            AtraccionesModel.detalles['duracion_segundos'] > 120
+        )
+        return list(query)
+    except Exception as e:
+        print(f"Error al obtener atracciones de larga duración: {e}")
+        return []

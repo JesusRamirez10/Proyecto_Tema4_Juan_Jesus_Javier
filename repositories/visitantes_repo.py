@@ -58,3 +58,15 @@ def eliminar_visitante(visitante_id):
     except Exception as e:
         print(f"Error desconocido al eliminar el visitante ID {visitante_id}: {e}")
         return False
+
+@staticmethod
+def obtener_visitantes_preferencia_extrema():
+    try:
+        # Accedemos a la clave 'tipo_favorito' dentro del JSONB preferencias
+        query = VisitantesModel.select().where(
+            VisitantesModel.preferencias['tipo_favorito'] == 'extrema'
+        )
+        return list(query)
+    except Exception as e:
+        print(f"Error al obtener visitantes con preferencia extrema: {e}")
+        return []

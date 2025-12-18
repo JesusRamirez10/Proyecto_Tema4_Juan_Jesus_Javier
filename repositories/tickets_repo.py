@@ -80,3 +80,19 @@ def marcar_ticket_usado(ticket_id):
             # Captura cualquier otro error durante la actualización
             print(f"Error desconocido al marcar el ticket ID {ticket_id} como usado: {e}")
             return None
+
+
+@staticmethod
+def obtener_tickets_colegio_economicos():
+    try:
+        # Filtramos de forma directa:
+        # 1. El tipo de ticket debe ser 'colegio'
+        # 2. El precio (dentro de detalles_compra) debe ser menor a 30
+        query = TicketsModel.select().where(
+            TicketsModel.tipo_ticket == 'colegio',
+            TicketsModel.detalles_compra['precio'] < 30
+        )
+        return list(query)
+    except Exception as e:
+        print(f"Error al obtener tickets: {e}")
+        return []
