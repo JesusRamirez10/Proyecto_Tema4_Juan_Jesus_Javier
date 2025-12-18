@@ -5,13 +5,15 @@ from models import atracciones_model, visitantes_model, tickets_model
 from peewee import *
 from datetime import datetime
 def menu():
+    print(f"\n{'='*50}")
     print("Bienvenido al sistema de gestión del parque de atracciones.")
     print("1. Seccion de Visitantes")
     print("2. Seccion de Atracciones")
     print("3. Seccion de Tickets")
     print("4. Funcionalidades varias")
+    print("5. Cambiar precio ticket.")
     print("5. Salir")
-    input_opcion = int(input("Seleccione una opcion (1-4): "))
+    input_opcion = int(input("Seleccione una opcion (1-5): "))
     match input_opcion:
         case 1:
             menu_visitantes()
@@ -22,6 +24,14 @@ def menu():
         case 4:
             menu_consultas()
         case 5:
+            ticket_id = int(input("Ingrese el numero del ticket: "))
+            nuevo_precio = float(input("Ingrese el nuevo precio para el ticket general: "))
+            exito = tickets_repo.cambiar_precio_ticket(ticket_id, nuevo_precio=nuevo_precio)
+            if exito:
+                print(f"Precio del ticket ID {ticket_id} actualizado a {nuevo_precio} exitosamente.")
+            else:
+                print(f"No se pudo actualizar el precio del ticket ID {ticket_id}.")
+        case 6:
             print("Saliendo del sistema. ¡Hasta luego!")
             exit(0)
         case _:
@@ -262,7 +272,7 @@ def main():
 
     print("Base de datos inicializada.")
     init_db = database.inicializar_base([visitantes_model.VisitantesModel, tickets_model.TicketsModel, atracciones_model.AtraccionesModel], reiniciar=True)
-    ingesta.ingesta_completa(tickets_por_visitante=3)
+    ingesta.ingesta_completa(tickets_por_visitante=4)
 
 
 

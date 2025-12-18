@@ -128,3 +128,41 @@ def obtener_tickets_colegio_economicos():
     except Exception as e:
         print(f"Error al obtener tickets: {e}")
         return []
+    
+
+@staticmethod
+def cambiar_precio_ticket(ticket_id: int, nuevo_precio: float) -> bool:
+    """
+    Cambia el precio de un ticket existente.
+
+    :param ticket_id: ID del ticket
+    :param nuevo_precio: Nuevo precio del ticket
+    :return: True si se actualiza correctamente, False en caso contrario
+    """
+
+    # Validación básica
+    if not isinstance(nuevo_precio, (int, float)) or nuevo_precio < 0:
+        return False
+
+    try:
+        with db.atomic():
+            ticket = TicketsModel.get(TicketsModel.id == ticket_id)
+
+            # Copiamos el JSON actual
+            detalles = dict(ticket.detalles_compra)
+
+            # Actualizamos solo el precio
+            detalles['precio'] = float(nuevo_precio)
+
+            ticket.detalles_compra = detalles
+            ticket.save()
+
+            return True
+
+    except DoesNotExist:
+        # Ticket no encontrado
+        return False
+
+    except Exception as e:
+        print(f"Error al cambiar el precio del ticket: {e}")
+        return False

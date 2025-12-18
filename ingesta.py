@@ -250,7 +250,3 @@ def ingesta_completa(tickets_por_visitante=2):
         'atracciones': atracciones,
         'tickets': tickets
     }
-
-
-if __name__ == "__main__":
-    resultados = ingesta_completa(tickets_por_visitante=3)
