@@ -82,15 +82,15 @@ def marcar_ticket_usado(ticket_id):
             return None
 
 @staticmethod
-    def obtener_todos():
+def obtener_todos():
         try:
             tickets = TicketsModel.select() #Realiza una consulta para obtener todos los tickets
             return list(tickets) #Convierte el resultado en una lista y lo devuelve
         except Exception as e:
             print(f"Error al obtener todos los tickets: {e}") #Captura cualquier error y lo imprime
             return []
-    @staticmethod
-    def obtener_tickets_por_visitante(visitante_id):
+@staticmethod
+def obtener_tickets_por_visitante(visitante_id):
         try:
             visitante_instancia = VisitantesModel.get_by_id(visitante_id)
             tickets = TicketsModel.select().where(TicketsModel.visitante == visitante_instancia)
@@ -101,8 +101,8 @@ def marcar_ticket_usado(ticket_id):
         except Exception as e:
             print(f"Error al obtener tickets para el visitante {visitante_id}: {e}")
             return []
-    @staticmethod
-    def obtener_tickets_por_atraccion(atraccion_id): 
+@staticmethod
+def obtener_tickets_por_atraccion(atraccion_id): 
         try:
             atraccion_instancia = AtraccionesModel.get_by_id(atraccion_id)
             tickets = TicketsModel.select().where(TicketsModel.atraccion == atraccion_instancia)
@@ -113,3 +113,18 @@ def marcar_ticket_usado(ticket_id):
         except Exception as e:
             print(f"Error al obtener tickets para la atracción {atraccion_id}: {e}")
             return []
+
+@staticmethod
+def obtener_tickets_colegio_economicos():
+    try:
+        # Filtramos de forma directa:
+        # 1. El tipo de ticket debe ser 'colegio'
+        # 2. El precio (dentro de detalles_compra) debe ser menor a 30
+        query = TicketsModel.select().where(
+            TicketsModel.tipo_ticket == 'colegio',
+            TicketsModel.detalles_compra['precio'] < 30
+        )
+        return list(query)
+    except Exception as e:
+        print(f"Error al obtener tickets: {e}")
+        return []
