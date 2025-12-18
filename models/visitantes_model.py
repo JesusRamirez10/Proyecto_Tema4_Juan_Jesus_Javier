@@ -21,7 +21,7 @@ class VisitantesModel(BaseModel):
     fecha_registro = DateTimeField(default=datetime.now)
 
     preferencias = postgres_ext.BinaryJSONField(null=True, default={
-        "tipo_favorito": "",
-        "restricciones": [],
-        "historial_visitas": []
+        'tipo_favorito': '',
+        'restricciones': [],
+        'historial_visitas': []
     })

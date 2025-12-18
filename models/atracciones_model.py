@@ -16,14 +16,14 @@ class AtraccionesModel(BaseModel):
     altura_minima = IntegerField(null=False)
     #detalles(jsonb) con su estructura
     detalles = postgres_ext.BinaryJSONField(null=True,default={
-        "duracion_segundos": 0,
-        "capacidad_por_turno": 0,
-        "intensidad": 0,
-        "caracteristicas": [],
-        "horarios": {
-            "apertura": "",
-            "cierre": "",
-            "mantenimiento": []
+        'duracion_segundos': 0,
+        'capacidad_por_turno': 0,
+        'intensidad': 0,
+        'caracteristicas': [],
+        'horarios': {
+            'apertura': '',
+            'cierre': '',
+            'mantenimiento': []
         }
     })
 

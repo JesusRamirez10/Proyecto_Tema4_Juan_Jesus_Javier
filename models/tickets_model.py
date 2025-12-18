@@ -29,10 +29,10 @@ class TicketsModel(BaseModel):
     
     # detalles_compra (jsonb)
     detalles_compra = postgres_ext.BinaryJSONField(null=False, default={
-        "precio": 0.00,
-        "descuentos_aplicados": [],
-        "servicios_extra": [],
-        "metodo_pago": "" 
+        'precio': 0.00,
+        'descuentos': [],
+        'extras': [],
+        'metodo_pago': '' 
     })
     
     # usado (boolean, default = False)
