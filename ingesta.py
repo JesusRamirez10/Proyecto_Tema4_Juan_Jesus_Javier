@@ -93,23 +93,26 @@ TICKETS_CONFIG = {
     'general': {
         'precio': 45.00,
         'descuentos': [],
-        'extras': ['fast_pass', 'foto']
+        'extras': ['fast_pass', 'foto'],
+        'metodo_pago': ''
     },
     'colegio': {
         'precio': 25.00,
         'descuentos': ['descuento_grupo'],
-        'extras': ['almuerzo']
+        'extras': ['almuerzo'],
+        'metodo_pago': ''
     },
     'empleado': {
         'precio': 15.00,
         'descuentos': ['descuento_empleado'],
-        'extras': []
+        'extras': [],
+        'metodo_pago': ''
     }
 }
 
 
 def crear_visitantes():
-    """Crea todos los visitantes predefinidos"""
+    """Crea todos los visitantes predefinidos usando visitantes_repo"""
     print(f"\n{'='*50}")
     print(f"Creando {len(VISITANTES)} visitantes...")
     print(f"{'='*50}")
@@ -117,11 +120,12 @@ def crear_visitantes():
     visitantes = []
     
     for i, v_data in enumerate(VISITANTES):
+        # Usar el método del repositorio
         visitante = visitantes_repo.crear_visitante(
-            v_data['nombre'],
-            v_data['email'],
-            v_data['altura'],
-            v_data['preferencias']
+            nombre=v_data['nombre'],
+            email=v_data['email'],
+            altura=v_data['altura'],
+            preferencias_json=v_data['preferencias']
         )
         
         if visitante:
@@ -135,7 +139,7 @@ def crear_visitantes():
 
 
 def crear_atracciones():
-    """Crea todas las atracciones predefinidas"""
+    """Crea todas las atracciones predefinidas usando atracciones_repo"""
     print(f"\n{'='*50}")
     print(f"Creando {len(ATRACCIONES)} atracciones...")
     print(f"{'='*50}")
@@ -143,11 +147,12 @@ def crear_atracciones():
     atracciones = []
     
     for i, a_data in enumerate(ATRACCIONES):
+        # Usar el método del repositorio
         atraccion = atracciones_repo.crear_atraccion(
-            a_data['nombre'],
-            a_data['tipo'],
-            a_data['altura_minima'],
-            a_data.get('detalles')
+            nombre=a_data['nombre'],
+            tipo=a_data['tipo'],
+            altura_minima=a_data['altura_minima'],
+            detalles_json=a_data.get('detalles')
         )
         
         if atraccion:
@@ -161,7 +166,7 @@ def crear_atracciones():
 
 
 def crear_tickets(visitantes, atracciones, tickets_por_visitante=2):
-    """Crea tickets para los visitantes"""
+    """Crea tickets para los visitantes usando tickets_repo"""
     print(f"\n{'='*50}")
     print(f"Creando tickets (aprox. {tickets_por_visitante} por visitante)...")
     print(f"{'='*50}")
@@ -196,12 +201,13 @@ def crear_tickets(visitantes, atracciones, tickets_por_visitante=2):
                 'metodo_pago': random.choice(['efectivo', 'tarjeta', 'app'])
             }
             
+            # Usar el método del repositorio
             ticket = tickets_repo.crear_ticket(
-                visitante.id,
-                fecha_visita,
-                tipo_ticket,
-                detalles_compra,
-                atraccion.id
+                visitante_id=visitante.id,
+                fecha_visita=fecha_visita,
+                tipo_ticket=tipo_ticket,
+                detalles_compra_json=detalles_compra,
+                atraccion_id=atraccion.id
             )
             
             if ticket:
@@ -221,13 +227,13 @@ def ingesta_completa(tickets_por_visitante=2):
     print("🎢 INICIANDO INGESTA DE DATOS DEL PARQUE DE ATRACCIONES 🎢")
     print("="*50)
     
-    # Crear visitantes
+    # Crear visitantes usando visitantes_repo
     visitantes = crear_visitantes()
     
-    # Crear atracciones
+    # Crear atracciones usando atracciones_repo
     atracciones = crear_atracciones()
     
-    # Crear tickets
+    # Crear tickets usando tickets_repo
     tickets = crear_tickets(visitantes, atracciones, tickets_por_visitante)
     
     # Resumen final
@@ -236,7 +242,7 @@ def ingesta_completa(tickets_por_visitante=2):
     print(f"{'='*50}")
     print(f"👥 Visitantes creados: {len(visitantes)}")
     print(f"🎢 Atracciones creadas: {len(atracciones)}")
-    print(f"🎟️  Tickets creados: {len(tickets)}")
+    print(f"🎟️ Tickets creados: {len(tickets)}")
     print(f"{'='*50}\n")
     
     return {
