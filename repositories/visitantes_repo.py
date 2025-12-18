@@ -60,6 +60,26 @@ def eliminar_visitante(visitante_id):
         return False
 
 @staticmethod
+def obtener_todos():
+        try:
+            visitantes = VisitantesModel.select()
+            return list(visitantes)
+        except Exception as e:
+            print(f"Error al listar todos los visitantes: {e}")
+            return []
+@staticmethod
+def obtener_visitantes_con_ticket_para_atraccion(self, atraccion_id):
+        try:
+            query = (VisitantesModel
+            .select()
+            .join(TicketsModel)
+            .where(TicketsModel.atraccion == atraccion_id))
+            return list(query)
+        except Exception as e:
+            print(f"Error al obtener visitantes con ticket para la atracción {atraccion_id}: {e}")
+            return []
+        
+@staticmethod
 def obtener_visitantes_preferencia_extrema():
     try:
         # Accedemos a la clave 'tipo_favorito' dentro del JSONB preferencias
@@ -70,3 +90,4 @@ def obtener_visitantes_preferencia_extrema():
     except Exception as e:
         print(f"Error al obtener visitantes con preferencia extrema: {e}")
         return []
+
