@@ -42,20 +42,29 @@ def menu_visitantes():
                 preferencias_json = json.loads(preferencias) if preferencias else None
             elif pref_input.lower() == 'n':
                 preferencias = None
+                preferencias_json = None
             else:
                 print("Opción inválida. No se ingresarán preferencias.")
                 preferencias = None
-                visitantes_repo.crear_visitante(nombre, email, altura, preferencias_json)
+            visitantes_repo.crear_visitante(nombre, email, altura, preferencias_json)
+            print(f"Visitante creado con nombre: {nombre}, email: {email}, altura: {altura}, preferencias: {preferencias_json}")
         case 2:
-
+            visitantes = visitantes_repo.obtener_todos()
+            for v in visitantes:
+                print(f"ID: {v.id}, Nombre: {v.nombre}, Email: {v.email}, Altura: {v.altura}, Preferencias: {v.preferencias}")
             visitante_id = int(input("Ingrese el ID del visitante a eliminar: "))
             exito = visitantes_repo.eliminar_visitante(visitante_id)
-
-            visitante = visitantes_repo.crear_visitante(nombre, email, altura, preferencias_json)
-            if visitante:
-                print(f"Visitante creado con ID: {visitante.id}")
+            if exito:
+                print(f"Visitante con ID {visitante_id} eliminado exitosamente.")
             else:
-                print("Error al crear el visitante.")
+                print(f"No se pudo eliminar el visitante con ID {visitante_id}.")
+
+            if exito:
+                print(f"Visitante con ID {visitante_id} eliminado exitosamente.")
+        case 3:
+            visitantes = visitantes_repo.obtener_todos()
+            for v in visitantes:
+                print(f"ID: {v.id}, Nombre: {v.nombre}, Email: {v.email}, Altura: {v.altura}, Preferencias: {v.preferencias}")
                 
 
 def menu_atracciones():
@@ -73,11 +82,12 @@ def menu_tickets():
 
 def main():
 
+    print("Base de datos inicializada.")
     init_db = database.inicializar_base([visitantes_model.VisitantesModel, tickets_model.TicketsModel, atracciones_model.AtraccionesModel], reiniciar=True)
     ingesta.IngestaDatos.ingesta_completa(tickets_por_visitante=3)
 
 
-    print("Base de datos inicializada.")
+
     while True:
         menu()
 
