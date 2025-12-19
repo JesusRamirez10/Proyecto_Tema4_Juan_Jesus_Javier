@@ -449,12 +449,32 @@ def obtener_atracciones_compatibles_visitante(visitante_id):
 def obtener_atracciones_looping_caida_libre():
     try:
         # Accedemos al array de características dentro del JSONB detalles
-        query = (AtraccionesModel.select().where(
-            AtraccionesModel.detalles(['caracteristicas']).contains(['looping', 'caida_libre'])
-        ))
+        # Usamos el operador @> de PostgreSQL para verificar que contenga ambos elementos
+        query = AtraccionesModel.select().where(
+            AtraccionesModel.detalles['caracteristicas'].contains(['looping', 'caída libre'])
+        )
         return list(query)
     except Exception as e:
         # Devolvemos una lista vacía en caso de error
-        print(f"Error al obtener atraccion con looping y caida libre: {e}")
+        print(f"Error al obtener atracciones con looping y caída libre: {e}")
         return []
-    
+
+@staticmethod
+def obtener_atracciones_mantenimiento_programado():
+    try:
+        # Obtener todas las atracciones
+        atracciones = AtraccionesModel.select()
+        
+        # Filtrar las que tienen al menos un mantenimiento
+        atracciones_mantenimiento = []
+        for atraccion in atracciones:
+            if atraccion.detalles and 'horarios' in atraccion.detalles:
+                mantenimientos = atraccion.detalles['horarios'].get('mantenimiento', [])
+                if len(mantenimientos) > 0:
+                    atracciones_mantenimiento.append(atraccion)
+        
+        return atracciones_mantenimiento
+    except Exception as e:
+        # Devolvemos una lista vacía en caso de error
+        print(f"Error al obtener atracciones con mantenimiento programado: {e}")
+        return []

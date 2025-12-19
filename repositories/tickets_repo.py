@@ -178,3 +178,16 @@ def cambiar_precio_ticket(ticket_id, nuevo_precio):
     except Exception as e:
         print(f"❌ Error al cambiar el precio del ticket ID {ticket_id}: {e}")
         return None
+    
+@staticmethod
+def obtener_tickets_descuento_estudiante():
+     try:
+        # Accedemos al array de descuentos dentro del JSONB detalles_compra
+        query = TicketsModel.select().where(
+             TicketsModel.detalles_compra['descuentos'].contains(['estudiante'])
+        )
+        return list(query)
+     except Exception as e:
+          # Devolvemos una lista vacía en caso de error
+          print(f"Error al obtener tickets con descuento de estudiante: {e}")
+          return []
