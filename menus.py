@@ -23,20 +23,6 @@ def menu():
         case 5:
             print("Saliendo del sistema. ¡Hasta luego!")
             exit(0)
-# PRUEBA PARA VER QUE FUNCIONASE LAS CONSULTAS UTILES. BORRAR DESPUES DE IMPLEMENTAR EN MENU_CONSULTAS  
-#                   |
-#                   V   
-
-  
-        case 6:
-            visitantes_repo.obtener_visitantes_ordenados_por_tickets()
-        case 7:
-            visitantes_repo.obtener_visitantes_gasto_mayor_a(100)
-        case 8:
-            atracciones_repo.obtener_top_atracciones_mas_vendidas()
-        case 9:
-            atracciones_repo.obtener_atracciones_compatibles_visitante(1)  # Ejemplo con ID de visitante 1
-        case _:
             print("Opcion invalida. Por favor, intente de nuevo.")
 
 def menu_visitantes():
@@ -354,10 +340,20 @@ def menu_consultas():
     print("1. Ver atracciones de alta intensidad (>7)")
     print("2. Ver atracciones de larga duracion (>2 min)")
     print("3. Ver solo atracciones activas actualmente")
-    print("4. Volver al menu principal")
+    print("4. Ver visitantes con problemas cardiacos")
+    print("5. Ver atracciones con looping y caida libre")
+    print("6. Ver tickets con descuento estudiante")
+    print("7. Ver atracciones con mantenimiento programado")
+    print("8. Ver visitantes con preferencia extrema")
+    print("9. Ver tickets de colegio economicos (<30€)")
+    print("10. Ver visitantes ordenados por tickets")
+    print("11. Ver visitantes con gasto mayor a X€")
+    print("12. Ver top atracciones mas vendidas")
+    print("13. Ver atracciones compatibles para visitante")
+    print("14. Volver al menu principal")
     
     try:
-        opcion = int(input("Seleccione una consulta (1-4): "))
+        opcion = int(input("Seleccione una consulta (1-14): "))
     except ValueError:
         return
 
@@ -367,7 +363,6 @@ def menu_consultas():
             resultados = atracciones_repo.obtener_atracciones_intensidad_alta()
             if resultados:
                 for a in resultados:
-                    # Usamos .get() porque 'detalles' es un diccionario JSON
                     print(f"- {a.nombre}: Intensidad {a.detalles.get('intensidad')}")
             else:
                 print("No hay atracciones que cumplan el criterio.")
@@ -388,4 +383,104 @@ def menu_consultas():
                 print(f"- {a.nombre} (Tipo: {a.tipo})")
 
         case 4:
+            print("\n--- Visitantes con Problemas Cardiacos ---")
+            resultados = visitantes_repo.obtener_visitantes_problemas_cardiacos()
+            if resultados:
+                for v in resultados:
+                    restricciones = v.preferencias.get('restricciones', []) if v.preferencias else []
+                    print(f"- {v.nombre}: Restricciones {restricciones}")
+            else:
+                print("No hay visitantes con problemas cardiacos.")
+
+        case 5:
+            print("\n--- Atracciones con Looping y Caida Libre ---")
+            resultados = atracciones_repo.obtener_atracciones_looping_caida_libre()
+            if resultados:
+                for a in resultados:
+                    caracteristicas = a.detalles.get('caracteristicas', []) if a.detalles else []
+                    print(f"- {a.nombre}: Caracteristicas {caracteristicas}")
+            else:
+                print("No hay atracciones con looping y caida libre.")
+
+        case 6:
+            print("\n--- Tickets con Descuento Estudiante ---")
+            resultados = tickets_repo.obtener_tickets_descuento_estudiante()
+            if resultados:
+                print(f"Total de tickets encontrados: {len(resultados)}")
+                for t in resultados[:10]:  # Mostrar solo los primeros 10
+                    descuentos = t.detalles_compra.get('descuentos', []) if t.detalles_compra else []
+                    precio = t.detalles_compra.get('precio', 0) if t.detalles_compra else 0
+                    print(f"- Ticket ID {t.id}: {t.visitante.nombre} | Precio: ${precio} | Descuentos: {descuentos}")
+                if len(resultados) > 10:
+                    print(f"... y {len(resultados) - 10} tickets mas")
+            else:
+                print("No hay tickets con descuento estudiante.")
+
+        case 7:
+            print("\n--- Atracciones con Mantenimiento Programado ---")
+            resultados = atracciones_repo.obtener_atracciones_mantenimiento_programado()
+            if resultados:
+                for a in resultados:
+                    if a.detalles and 'horarios' in a.detalles:
+                        mantenimientos = a.detalles['horarios'].get('mantenimiento', [])
+                        print(f"- {a.nombre}: {len(mantenimientos)} horarios")
+                        for horario in mantenimientos:
+                            print(f"    * {horario}")
+            else:
+                print("No hay atracciones con mantenimiento programado.")
+
+        case 8:
+            print("\n--- Visitantes con Preferencia Extrema ---")
+            resultados = visitantes_repo.obtener_visitantes_preferencia_extrema()
+            if resultados:
+                for v in resultados:
+                    tipo_fav = v.preferencias.get('tipo_favorito', 'N/A') if v.preferencias else 'N/A'
+                    print(f"- {v.nombre}: Tipo favorito {tipo_fav}")
+            else:
+                print("No hay visitantes con preferencia extrema.")
+
+        case 9:
+            print("\n--- Tickets de Colegio Economicos (<30€) ---")
+            resultados = tickets_repo.obtener_tickets_colegio_economicos()
+            if resultados:
+                print(f"Total de tickets encontrados: {len(resultados)}")
+                for t in resultados[:10]:
+                    precio = t.detalles_compra.get('precio', 0) if t.detalles_compra else 0
+                    print(f"- Ticket ID {t.id}: {t.visitante.nombre} | Precio: ${precio} | Tipo: {t.tipo_ticket}")
+                if len(resultados) > 10:
+                    print(f"... y {len(resultados) - 10} tickets mas")
+            else:
+                print("No hay tickets de colegio economicos.")
+
+        case 10:
+            print("\n--- Visitantes Ordenados por Cantidad de Tickets ---")
+            visitantes_repo.obtener_visitantes_ordenados_por_tickets()
+
+        case 11:
+            print("\n--- Visitantes con Gasto Mayor a X€ ---")
+            try:
+                cantidad = float(input("Ingrese cantidad minima gastada (default 100): ") or 100)
+            except ValueError:
+                cantidad = 100
+            visitantes_repo.obtener_visitantes_gasto_mayor_a(cantidad)
+
+        case 12:
+            print("\n--- Top Atracciones Mas Vendidas ---")
+            try:
+                limite = int(input("Ingrese cantidad de atracciones (default 5): ") or 5)
+            except ValueError:
+                limite = 5
+            atracciones_repo.obtener_top_atracciones_mas_vendidas(limite)
+
+        case 13:
+            print("\n--- Atracciones Compatibles para Visitante ---")
+            try:
+                visitante_id = int(input("Ingrese ID del visitante: "))
+                atracciones_repo.obtener_atracciones_compatibles_visitante(visitante_id)
+            except ValueError:
+                print("ID invalido")
+            except Exception as e:
+                print(f"Error: {e}")
+
+        case 14:
             return
