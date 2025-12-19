@@ -163,7 +163,7 @@ def agregar_caracteristica_atraccion(atraccion_id, nueva_caracteristica):
         
         # 5. Verificar si la característica ya existe (evitar duplicados)
         if nueva_caracteristica in caracteristicas:
-            print(f"⚠️ La característica '{nueva_caracteristica}' ya existe en la atracción '{atraccion.nombre}'.")
+            print(f" La característica '{nueva_caracteristica}' ya existe en la atracción '{atraccion.nombre}'.")
             return atraccion
         
         # 6. Añadir la nueva característica
@@ -176,17 +176,17 @@ def agregar_caracteristica_atraccion(atraccion_id, nueva_caracteristica):
         # 8. Guardar los cambios
         atraccion.save()
         
-        print(f"✅ Característica agregada a la atracción '{atraccion.nombre}' (ID {atraccion_id}).")
+        print(f" Característica agregada a la atracción '{atraccion.nombre}' (ID {atraccion_id}).")
         print(f"   Nueva característica: {nueva_caracteristica}")
         print(f"   Total características: {len(caracteristicas)}")
         
         return atraccion
         
     except AtraccionesModel.DoesNotExist:
-        print(f"❌ Error: La atracción con ID {atraccion_id} no existe.")
+        print(f" Error: La atracción con ID {atraccion_id} no existe.")
         return None
     except Exception as e:
-        print(f"❌ Error al agregar característica a la atracción ID {atraccion_id}: {e}")
+        print(f" Error al agregar característica a la atracción ID {atraccion_id}: {e}")
         return None
     
 @staticmethod
@@ -201,7 +201,7 @@ def cambiar_estado_activo_atraccion(atraccion_id, nuevo_estado):
         # 2. Verificar si el estado es el mismo para evitar una operación innecesaria
         if atraccion.activa == nuevo_estado:
             estado_str = "activo" if nuevo_estado else "inactivo"
-            print(f"⚠️ Advertencia: La atracción '{atraccion.nombre}' (ID {atraccion_id}) ya estaba en estado {estado_str}.")
+            print(f" Advertencia: La atracción '{atraccion.nombre}' (ID {atraccion_id}) ya estaba en estado {estado_str}.")
             return atraccion
         
         # 3. Actualizar el campo 'activa'
@@ -211,20 +211,15 @@ def cambiar_estado_activo_atraccion(atraccion_id, nuevo_estado):
         atraccion.save()
         
         estado_str = "activada" if nuevo_estado else "desactivada"
-        print(f"✅ Éxito: La atracción '{atraccion.nombre}' (ID {atraccion_id}) ha sido {estado_str}.")
+        print(f" Éxito: La atracción '{atraccion.nombre}' (ID {atraccion_id}) ha sido {estado_str}.")
         return atraccion
         
     except AtraccionesModel.DoesNotExist:
-        print(f"❌ Error: La atracción con ID {atraccion_id} no existe.")
+        print(f" Error: La atracción con ID {atraccion_id} no existe.")
         return None
     except Exception as e:
-        print(f"❌ Error desconocido al cambiar el estado de la atracción ID {atraccion_id}: {e}")
+        print(f" Error desconocido al cambiar el estado de la atracción ID {atraccion_id}: {e}")
         return None
-
-
-# ============================================
-# ATRACCIONES_REPO.PY - NUEVA FUNCIÓN PARA MANTENIMIENTO
-# ============================================
 
 @staticmethod
 def agregar_horario_mantenimiento(atraccion_id, horario_mantenimiento):
@@ -277,16 +272,16 @@ def agregar_horario_mantenimiento(atraccion_id, horario_mantenimiento):
         # 8. Guardar los cambios
         atraccion.save()
         
-        print(f"✅ Horario de mantenimiento '{horario_mantenimiento}' agregado a '{atraccion.nombre}' (ID {atraccion_id}).")
+        print(f" Horario de mantenimiento '{horario_mantenimiento}' agregado a '{atraccion.nombre}' (ID {atraccion_id}).")
         print(f"   Total horarios de mantenimiento: {len(detalles['horarios']['mantenimiento'])}")
         
         return atraccion
         
     except AtraccionesModel.DoesNotExist:
-        print(f"❌ Error: La atracción con ID {atraccion_id} no existe.")
+        print(f" Error: La atracción con ID {atraccion_id} no existe.")
         return None
     except Exception as e:
-        print(f"❌ Error al agregar horario de mantenimiento a la atracción ID {atraccion_id}: {e}")
+        print(f" Error al agregar horario de mantenimiento a la atracción ID {atraccion_id}: {e}")
         return None
     
 def eliminar_ultimo_mantenimiento(atraccion_id):
@@ -297,7 +292,7 @@ def eliminar_ultimo_mantenimiento(atraccion_id):
         
         # 2. Verificar que existan detalles y estructura de horarios
         if not atraccion.detalles or 'horarios' not in atraccion.detalles:
-            print(f"⚠️ La atracción '{atraccion.nombre}' no tiene horarios configurados.")
+            print(f" La atracción '{atraccion.nombre}' no tiene horarios configurados.")
             return None
         
         # 3. Obtener los detalles actuales
@@ -305,7 +300,7 @@ def eliminar_ultimo_mantenimiento(atraccion_id):
         
         # 4. Verificar que exista el array de mantenimiento
         if 'mantenimiento' not in detalles['horarios']:
-            print(f"⚠️ La atracción '{atraccion.nombre}' no tiene mantenimientos programados.")
+            print(f" La atracción '{atraccion.nombre}' no tiene mantenimientos programados.")
             return None
         
         # 5. Obtener el array de mantenimiento
@@ -313,7 +308,7 @@ def eliminar_ultimo_mantenimiento(atraccion_id):
         
         # 6. Verificar que haya al menos un elemento
         if len(mantenimientos) == 0:
-            print(f"⚠️ La atracción '{atraccion.nombre}' no tiene mantenimientos para eliminar.")
+            print(f" La atracción '{atraccion.nombre}' no tiene mantenimientos para eliminar.")
             return None
         
         # 7. Hacer pop del último elemento
@@ -326,16 +321,16 @@ def eliminar_ultimo_mantenimiento(atraccion_id):
         # 9. Guardar los cambios
         atraccion.save()
         
-        print(f"✅ Horario de mantenimiento '{horario_eliminado}' eliminado de '{atraccion.nombre}' (ID {atraccion_id}).")
+        print(f" Horario de mantenimiento '{horario_eliminado}' eliminado de '{atraccion.nombre}' (ID {atraccion_id}).")
         print(f"   Mantenimientos restantes: {len(mantenimientos)}")
         
         return horario_eliminado
         
     except AtraccionesModel.DoesNotExist:
-        print(f"❌ Error: La atracción con ID {atraccion_id} no existe.")
+        print(f" Error: La atracción con ID {atraccion_id} no existe.")
         return None
     except Exception as e:
-        print(f"❌ Error al eliminar horario de mantenimiento de la atracción ID {atraccion_id}: {e}")
+        print(f" Error al eliminar horario de mantenimiento de la atracción ID {atraccion_id}: {e}")
         return None
     
 @staticmethod
@@ -376,7 +371,7 @@ def obtener_top_atracciones_mas_vendidas(limite=5):
         return resultados
         
     except Exception as e:
-        print(f"❌ Error al obtener top atracciones: {e}")
+        print(f" Error al obtener top atracciones: {e}")
         return []    
     
 @staticmethod
@@ -439,10 +434,10 @@ def obtener_atracciones_compatibles_visitante(visitante_id):
         return resultados
         
     except VisitantesModel.DoesNotExist:
-        print(f"❌ Error: El visitante con ID {visitante_id} no existe.")
+        print(f" Error: El visitante con ID {visitante_id} no existe.")
         return []
     except Exception as e:
-        print(f"❌ Error al obtener atracciones compatibles: {e}")
+        print(f" Error al obtener atracciones compatibles: {e}")
         return []
 
 @staticmethod
