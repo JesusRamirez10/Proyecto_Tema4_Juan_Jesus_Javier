@@ -221,20 +221,70 @@ def cambiar_estado_activo_atraccion(atraccion_id, nuevo_estado):
         print(f" Error desconocido al cambiar el estado de la atracción ID {atraccion_id}: {e}")
         return None
 
-@staticmethod
-def agregar_horario_mantenimiento(atraccion_id, horario_mantenimiento):
+def validar_formato_horario(horario):
     """
-    Agrega un horario al array de mantenimiento en detalles de una atracción
-    
-    Args:
-        atraccion_id: ID de la atracción
-        horario_mantenimiento: String con el horario (ej: "10:00-19:00")
+    Valida que el horario tenga el formato HH:MM-HH:MM
     """
     try:
-        # 1. Obtener la atracción
+        if '-' not in horario:
+            return False
+        
+        partes = horario.split('-')
+        if len(partes) != 2:
+            return False
+        
+        inicio = partes[0]
+        fin = partes[1]
+        
+        if ':' not in inicio or ':' not in fin:
+            return False
+        
+        partes_inicio = inicio.split(':')
+        partes_fin = fin.split(':')
+        
+        if len(partes_inicio) != 2 or len(partes_fin) != 2:
+            return False
+        
+        hora_inicio = int(partes_inicio[0])
+        minuto_inicio = int(partes_inicio[1])
+        hora_fin = int(partes_fin[0])
+        minuto_fin = int(partes_fin[1])
+        
+        if hora_inicio < 0 or hora_inicio > 23:
+            return False
+        if hora_fin < 0 or hora_fin > 23:
+            return False
+        if minuto_inicio < 0 or minuto_inicio > 59:
+            return False
+        if minuto_fin < 0 or minuto_fin > 59:
+            return False
+        
+        if len(inicio) != 5 or len(fin) != 5:
+            return False
+        
+        minutos_totales_inicio = hora_inicio * 60 + minuto_inicio
+        minutos_totales_fin = hora_fin * 60 + minuto_fin
+        
+        if minutos_totales_inicio >= minutos_totales_fin:
+            return False
+        
+        return True
+        
+    except:
+        return False
+
+@staticmethod
+def agregar_horario_mantenimiento(atraccion_id, horario_mantenimiento):
+    try:
+        if not validar_formato_horario(horario_mantenimiento):
+            print(f"Error: Formato de horario invalido.")
+            print(f"El formato debe ser HH:MM-HH:MM (ejemplo: 08:00-10:00)")
+            print(f"Las horas deben estar entre 00:00 y 23:59")
+            print(f"La hora de inicio debe ser menor que la hora de fin")
+            return None
+        
         atraccion = AtraccionesModel.get_by_id(atraccion_id)
         
-        # 2. Asegurarse de que exista la estructura de detalles
         if not atraccion.detalles:
             atraccion.detalles = {
                 'duracion_segundos': 0,
@@ -248,10 +298,8 @@ def agregar_horario_mantenimiento(atraccion_id, horario_mantenimiento):
                 }
             }
         
-        # 3. Obtener los detalles actuales
         detalles = atraccion.detalles
         
-        # 4. Asegurarse de que existe la estructura de horarios
         if 'horarios' not in detalles:
             detalles['horarios'] = {
                 'apertura': '',
@@ -259,29 +307,23 @@ def agregar_horario_mantenimiento(atraccion_id, horario_mantenimiento):
                 'mantenimiento': []
             }
         
-        # 5. Asegurarse de que existe el array de mantenimiento
         if 'mantenimiento' not in detalles['horarios']:
             detalles['horarios']['mantenimiento'] = []
         
-        # 6. Hacer append del nuevo horario de mantenimiento
         detalles['horarios']['mantenimiento'].append(horario_mantenimiento)
-        
-        # 7. Actualizar el campo JSONB
         atraccion.detalles = detalles
-        
-        # 8. Guardar los cambios
         atraccion.save()
         
-        print(f" Horario de mantenimiento '{horario_mantenimiento}' agregado a '{atraccion.nombre}' (ID {atraccion_id}).")
-        print(f"   Total horarios de mantenimiento: {len(detalles['horarios']['mantenimiento'])}")
+        print(f"Horario de mantenimiento '{horario_mantenimiento}' agregado a '{atraccion.nombre}' (ID {atraccion_id}).")
+        print(f"Total horarios de mantenimiento: {len(detalles['horarios']['mantenimiento'])}")
         
         return atraccion
         
     except AtraccionesModel.DoesNotExist:
-        print(f" Error: La atracción con ID {atraccion_id} no existe.")
+        print(f"Error: La atraccion con ID {atraccion_id} no existe.")
         return None
     except Exception as e:
-        print(f" Error al agregar horario de mantenimiento a la atracción ID {atraccion_id}: {e}")
+        print(f"Error al agregar horario de mantenimiento a la atraccion ID {atraccion_id}: {e}")
         return None
     
 def eliminar_ultimo_mantenimiento(atraccion_id):
