@@ -273,3 +273,16 @@ def obtener_visitantes_gasto_mayor_a(cantidad_minima=100):
     except Exception as e:
         print(f"❌ Error al obtener visitantes por gasto: {e}")
         return []
+    
+@staticmethod
+def obtener_visitantes_problemas_cardiacos():
+    try:
+        # Accedemos al array de restrcciones dentro del JSONB preferencias
+        query = (VisitantesModel.select().where(
+            VisitantesModel.preferencias['restricciones'].contains(['problemas_cardiacos'])
+        ))
+        return list(query)
+    except Exception as e:
+        # Devolvemos una lista vacía en caso de error
+        print(f"Error al obtener visitantes con problemas cardiacos: {e}")
+        return []

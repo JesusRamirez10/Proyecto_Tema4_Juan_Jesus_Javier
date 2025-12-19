@@ -444,3 +444,17 @@ def obtener_atracciones_compatibles_visitante(visitante_id):
     except Exception as e:
         print(f"❌ Error al obtener atracciones compatibles: {e}")
         return []
+
+@staticmethod
+def obtener_atracciones_looping_caida_libre():
+    try:
+        # Accedemos al array de características dentro del JSONB detalles
+        query = (AtraccionesModel.select().where(
+            AtraccionesModel.detalles(['caracteristicas']).contains(['looping', 'caida_libre'])
+        ))
+        return list(query)
+    except Exception as e:
+        # Devolvemos una lista vacía en caso de error
+        print(f"Error al obtener atraccion con looping y caida libre: {e}")
+        return []
+    
