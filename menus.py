@@ -213,14 +213,14 @@ def menu_atracciones():
             elif nuevo_est_input == 'd':
                 nuevo_estado = False
             else:
-                print("❌ Opción inválida. Operación cancelada.")
+                print(" Opción inválida. Operación cancelada.")
                 return
             
             # Cambiar estado
             atracciones_repo.cambiar_estado_activo_atraccion(id_mod, nuevo_estado)
             
             if nuevo_estado==True:
-                print("✅ La atracción ha sido activada.")
+                print(" La atracción ha sido activada.")
                 q= input("Desea eliminar los horarios de mantenimiento programados? (s/n): ").lower()
                 if q == 's':
                     atracciones_repo.eliminar_ultimo_mantenimiento(id_mod)
@@ -233,9 +233,9 @@ def menu_atracciones():
                     
                     # Agregar horario de mantenimiento usando la nueva función
                     atracciones_repo.agregar_horario_mantenimiento(id_mod, tiempo_mant)
-                    print("✅ La atracción ha sido desactivada y el horario de mantenimiento ha sido registrado.")
+                    print(" La atracción ha sido desactivada y el horario de mantenimiento ha sido registrado.")
                 else:
-                    print("✅ La atracción ha sido desactivada.")
+                    print(" La atracción ha sido desactivada.")
 
         case 3:
             atracciones = atracciones_repo.obtener_todas()
