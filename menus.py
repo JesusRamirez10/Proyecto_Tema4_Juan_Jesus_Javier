@@ -100,7 +100,7 @@ def menu_visitantes():
             # Crear el visitante
             visitante_creado = visitantes_repo.crear_visitante(nombre, email, altura, preferencias_json)
             visitantes_repo.crear_visitante(nombre, email, altura, preferencias_json)
-            print(f"Visitante creado con nombre: {nombre}, email: {email}, altura: {altura}, preferencias: {preferencias_json}")
+            print(f"Visitante creado con nombre: {visitante_creado}{nombre}, email: {email}, altura: {altura}, preferencias: {preferencias_json}")
         case 2:
             visitantes = visitantes_repo.obtener_todos()
             for v in visitantes:
@@ -143,7 +143,7 @@ def menu_visitantes():
                 return
             
             print("\nVisitantes disponibles:")
-            for v in visitantes[:10]:  # Mostrar solo los primeros 10
+            for v in visitantes:
                 historial = v.preferencias.get('historial_visitas', []) if v.preferencias else []
                 print(f"ID: {v.id} | Nombre: {v.nombre} | Visitas en historial: {len(historial)}")
             
@@ -166,10 +166,8 @@ def menu_atracciones():
     print("2. Cambiar Estado Activo (Activar/Desactivar)")
     print("3. Eliminar Atracción")
     print("4. Listar todas las Atracciones")
-    print("5. Ver Atracciones de Alta Intensidad (>7)")
-    print("6. Ver Atracciones de Larga Duración (>2min)")
-    print("7. Agregar una caracteristica a una atraccion")
-    print("8. Volver al Menú Principal")
+    print("5. Agregar una caracteristica a una atraccion")
+    print("6. Volver al Menú Principal")
     
     input_opcion = int(input("Seleccione una opción (1-7): "))
     
@@ -213,7 +211,7 @@ def menu_atracciones():
             elif nuevo_est_input == 'd':
                 nuevo_estado = False
             else:
-                print(" Opción inválida. Operación cancelada.")
+                print("Opción inválida. Operación cancelada.")
                 return
             
             # Cambiar estado
@@ -233,9 +231,9 @@ def menu_atracciones():
                     
                     # Agregar horario de mantenimiento usando la nueva función
                     atracciones_repo.agregar_horario_mantenimiento(id_mod, tiempo_mant)
-                    print(" La atracción ha sido desactivada y el horario de mantenimiento ha sido registrado.")
+                    print("La atracción ha sido desactivada y el horario de mantenimiento ha sido registrado.")
                 else:
-                    print(" La atracción ha sido desactivada.")
+                    print("La atracción ha sido desactivada.")
 
         case 3:
             atracciones = atracciones_repo.obtener_todas()
@@ -254,25 +252,7 @@ def menu_atracciones():
                 print(f"ID: {a.id} | {a.nombre} | Tipo: {a.tipo} | Altura Min: {a.altura_minima} | Activa: {a.activa}")
                 if a.detalles:
                     print(f"   Detalles: {a.detalles}")
-
         case 5:
-            print("\n--- Atracciones de Alta Intensidad ---")
-            intensas = atracciones_repo.obtener_atracciones_intensidad_alta()
-            if intensas:
-                for a in intensas:
-                    print(f"- {a.nombre} (Intensidad: {a.detalles.get('intensidad')})")
-            else:
-                print("No se encontraron atracciones con intensidad > 7.")
-
-        case 6:
-            print("\n--- Atracciones de Larga Duración ---")
-            largas = atracciones_repo.obtener_atracciones_larga_duracion()
-            if largas:
-                for a in largas:
-                    print(f"- {a.nombre} (Duración: {a.detalles.get('duracion_segundos')} seg)")
-            else:
-                print("No se encontraron atracciones con duración > 120 segundos.")
-        case 7:
             print("\n--- Agregar Característica a Atracción ---")
             atracciones = atracciones_repo.obtener_todas()
             if not atracciones:
@@ -289,130 +269,201 @@ def menu_atracciones():
             
             atracciones_repo.agregar_caracteristica_atraccion(atraccion_id, nueva_caracteristica)
         
-        case 8:
+        case 6:
             return # Regresa al menú principal
             
         case _:
             print("Opción no válida.")
 
 def menu_tickets():
-    print(f"\n{'='*50}")
-    print("Sección de Tickets")
-    print("1. Crear Ticket")    
-    print("2. Eliminar Ticket")
-    print("3. Obtener todos")
-    print("4. Obtener ticket por ID")
-    print("5. Cambiar precio de un ticket")
-    print("6. Volver al Menú Principal")
-    
-    try:
-        input_opcion = int(input("Seleccione una opción (1-6): "))
-    except ValueError:
-        print("❌ Error: Ingrese un número válido.")
-        return
-
-    match input_opcion:
-        case 1:
-            print("\n--- [1] Crear Nuevo Ticket ---")
-            try:
-                v_id = int(input("ID del Visitante: "))
-                # Puede ser nulo según tu modelo, pero aquí pedimos uno o 0 para None
-                a_id_input = int(input("ID de la Atracción (0 para ninguna): "))
-                a_id = a_id_input if a_id_input != 0 else None
+    while True:
+        print(f"\n{'='*50}")
+        print("Seccion de Tickets")
+        print("1. Crear Ticket")    
+        print("2. Eliminar Ticket")
+        print("3. Obtener todos")
+        print("4. Obtener ticket por ID")
+        print("5. Marcar ticket como usado")
+        print("6. Cambiar precio de un ticket")
+        print("7. Volver al Menu Principal")
+        
+        try:
+            input_opcion = int(input("Seleccione una opcion (1-7): "))
+        except ValueError:
+            print("Opcion invalida. Intente de nuevo.")
+            continue
+        
+        match input_opcion:
+            case 1:
+                print("\n--- Crear Nuevo Ticket ---")
                 
-                f_visita = input("Fecha de visita (YYYY-MM-DD): ")
-                print("Tipos: general, colegio, empleado")
-                t_ticket = input("Tipo de ticket: ").lower()
+                # Listar visitantes disponibles
+                visitantes = visitantes_repo.obtener_todos()
+                if not visitantes:
+                    print("No hay visitantes registrados.")
+                    continue
                 
-                # Datos para el BinaryJSONField de tu modelo
-                p_pago = float(input("Precio: "))
-                m_pago = input("Método de pago (efectivo/tarjeta): ")
-
-                detalles = {
-                    'precio': p_pago,
+                print("\nVisitantes disponibles:")
+                for v in visitantes:
+                    print(f"ID: {v.id} - {v.nombre}")
+                
+                visitante_id = int(input("Ingrese el ID del visitante: "))
+                
+                # Listar atracciones disponibles
+                atracciones = atracciones_repo.obtener_todas()
+                if not atracciones:
+                    print("No hay atracciones registradas.")
+                    continue
+                
+                print("\nAtracciones disponibles:")
+                for a in atracciones:
+                    print(f"ID: {a.id} - {a.nombre} (Tipo: {a.tipo})")
+                
+                atraccion_id = int(input("Ingrese el ID de la atraccion: "))
+                
+                # Solicitar datos del ticket
+                print("\nTipos de ticket: general, colegio, empleado")
+                tipo_ticket = input("Ingrese el tipo de ticket: ")
+                
+                fecha_visita_str = input("Ingrese fecha de visita (YYYY-MM-DD): ")
+                fecha_visita = datetime.strptime(fecha_visita_str, '%Y-%m-%d').date()
+                
+                precio = float(input("Ingrese el precio: "))
+                metodo_pago = input("Ingrese metodo de pago (efectivo/tarjeta/app): ")
+                
+                # Construir detalles de compra
+                detalles_compra = {
+                    'precio': precio,
                     'descuentos': [],
                     'extras': [],
-                    'metodo_pago': m_pago
+                    'metodo_pago': metodo_pago
                 }
-
-                # Llamamos a tu repositorio
-                ticket = tickets_repo.crear_ticket(v_id, f_visita, t_ticket, detalles, a_id)
+                
+                # Preguntar por descuentos
+                agregar_descuento = input("Agregar descuento estudiante? (s/n): ")
+                if agregar_descuento.lower() == 's':
+                    detalles_compra['descuentos'].append('estudiante')
+                
+                ticket = tickets_repo.crear_ticket(
+                    visitante_id=visitante_id,
+                    fecha_visita=fecha_visita,
+                    tipo_ticket=tipo_ticket,
+                    detalles_compra_json=detalles_compra,
+                    atraccion_id=atraccion_id
+                )
+                
                 if ticket:
-                    print(f"✅ Ticket ID {ticket.id} creado para {ticket.visitante.nombre}")
-            except ValueError:
-                print("❌ Error: Datos numéricos incorrectos.")
-
-        case 2:
-            print("\n--- [2] Eliminar Ticket ---")
-            try:
-                t_id = int(input("Ingrese el ID del ticket a eliminar: "))
-                # Borrado directo usando el Modelo
-                query = tickets_model.delete().where(tickets_model.id == t_id)
-                if query.execute() > 0:
-                    print(f"✅ Ticket {t_id} eliminado.")
-                else:
-                    print(" No existe ese ID.")
-            except ValueError:
-                print(" ID inválido.")
-
-        case 3:
-            print("\n--- [3] Listado Completo de Tickets ---")
-            tickets = tickets_repo.obtener_todos()
-            if not tickets:
-                print("No hay tickets.")
-            for t in tickets:
-                # Acceso a campos según tu modelo
-                precio = t.detalles_compra.get('precio', 0)
-                estado = "USADO" if t.usado else "Pte. Uso"
-                print(f"ID: {t.id} | Tipo: {t.tipo_ticket} | Precio: {precio}€ | Estado: {estado}")
-
-        case 4:
-            print("\n--- [4] Obtener ticket por ID ---")
-            try:
-                t_id = int(input("ID del ticket: "))
-                t = tickets_repo.obtener_un_ticket(t_id)
-                if t:
-                    print(f"Ticket #{t.id} | Visitante: {t.visitante.nombre}")
-                    print(f"Atracción: {t.atraccion.nombre if t.atraccion else 'Cualquiera'}")
-                    print(f"Detalles JSON: {t.detalles_compra}")
-            except ValueError:
-                print(" ID inválido.")
-
-        case 5:
-            print("\n--- [5] Cambiar Precio de Ticket ---")
-            try:
-                # Primero listamos para que el usuario vea qué hay
+                    print(f"Ticket creado exitosamente con ID: {ticket.id}")
+            
+            case 2:
+                print("\n--- Eliminar Ticket ---")
                 tickets = tickets_repo.obtener_todos()
                 if not tickets:
                     print("No hay tickets registrados.")
-                    return
+                    continue
+                
+                print("\nTickets disponibles:")
+                for t in tickets:
+                    estado = "USADO" if t.usado else "DISPONIBLE"
+                    print(f"ID: {t.id}, Tipo: {t.tipo_ticket}, Estado: {estado}")
+                
+                ticket_id = int(input("Ingrese el ID del ticket a eliminar: "))
+                
+                confirmacion = input(f"Esta seguro de eliminar el ticket ID {ticket_id}? (s/n): ")
+                if confirmacion.lower() == 's':
+                    ticket = tickets_repo.obtener_un_ticket(ticket_id)
+                    if ticket:
+                        ticket.delete_instance()
+                        print(f"Ticket ID {ticket_id} eliminado exitosamente.")
+                    else:
+                        print("Ticket no encontrado.")
+                else:
+                    print("Operacion cancelada.")
+            
+            case 3:
+                print("\n--- Listado Completo de Tickets ---")
+                tickets = tickets_repo.obtener_todos()
+                if not tickets:
+                    print("No hay tickets registrados.")
+                    continue
                 
                 for t in tickets:
-                    precio = t.detalles_compra.get('precio', 0)
-                    print(f"ID: {t.id} | Tipo: {t.tipo_ticket} | Precio Actual: {precio}")
-
-                ticket_id = int(input("\nID del ticket a modificar: "))
-                ticket_sel = tickets_repo.obtener_un_ticket(ticket_id)
+                    estado = "USADO" if t.usado else "DISPONIBLE"
+                    precio = t.detalles_compra.get('precio', 'N/A') if t.detalles_compra else 'N/A'
+                    print(f"ID: {t.id}, Tipo: {t.tipo_ticket}, Precio: ${precio}, Estado: {estado}")
+            
+            case 4:
+                print("\n--- Obtener Ticket por ID ---")
+                ticket_id = int(input("Ingrese el ID del ticket a buscar: "))
+                ticket = tickets_repo.obtener_un_ticket(ticket_id)
                 
-                if ticket_sel:
-                    # Mostramos datos actuales antes de pedir el nuevo
-                    precio_act = ticket_sel.detalles_compra.get('precio', 0)
-                    print(f"Seleccionado: ID {ticket_sel.id} (Precio actual: {precio_act})")
-                    
-                    nuevo_precio = float(input("Ingrese el nuevo precio: "))
-                    tickets_repo.cambiar_precio_ticket(ticket_id, nuevo_precio)
+                if ticket:
+                    print(f"\nTicket encontrado:")
+                    print(f"ID: {ticket.id}")
+                    print(f"Tipo: {ticket.tipo_ticket}")
+                    print(f"Visitante: {ticket.visitante.nombre}")
+                    print(f"Atraccion: {ticket.atraccion.nombre if ticket.atraccion else 'N/A'}")
+                    print(f"Fecha visita: {ticket.fecha_visita}")
+                    print(f"Estado: {'USADO' if ticket.usado else 'DISPONIBLE'}")
+                    if ticket.detalles_compra:
+                        print(f"Precio: ${ticket.detalles_compra.get('precio', 'N/A')}")
+                        print(f"Descuentos: {ticket.detalles_compra.get('descuentos', [])}")
                 else:
-                    print(" ID no encontrado.")
-            except ValueError:
-                print(" Error en la entrada de datos.")
-
-        case 6:
-            return
+                    print(f"No se encontro ningun ticket con ID {ticket_id}.")
+            
+            case 5:
+                print("\n--- Marcar Ticket como Usado ---")
+                tickets = tickets_repo.obtener_todos()
+                if not tickets:
+                    print("No hay tickets registrados.")
+                    continue
+                
+                print("\nTickets disponibles:")
+                for t in tickets:
+                    estado = "USADO" if t.usado else "DISPONIBLE"
+                    print(f"ID: {t.id}, Tipo: {t.tipo_ticket}, Estado: {estado}")
+                
+                ticket_id = int(input("Ingrese el ID del ticket a marcar como usado: "))
+                tickets_repo.marcar_ticket_usado(ticket_id)
+            
+            case 6:
+                print("\n--- Cambiar Precio de Ticket ---")
+                tickets = tickets_repo.obtener_todos()
+                if not tickets:
+                    print("No hay tickets registrados.")
+                    continue
+                
+                print("\nTickets disponibles:")
+                for t in tickets:
+                    precio = t.detalles_compra.get('precio', 'N/A') if t.detalles_compra else 'N/A'
+                    print(f"ID: {t.id}, Tipo: {t.tipo_ticket}, Precio Actual: ${precio}")
+                
+                ticket_id = int(input("Ingrese el ID del ticket a modificar: "))
+                ticket_seleccionado = tickets_repo.obtener_un_ticket(ticket_id)
+                
+                if not ticket_seleccionado:
+                    print("Ticket no encontrado.")
+                    continue
+                
+                precio_actual = ticket_seleccionado.detalles_compra.get('precio', 'N/A') if ticket_seleccionado.detalles_compra else 'N/A'
+                print(f"\nTicket seleccionado:")
+                print(f"ID: {ticket_seleccionado.id}, Tipo: {ticket_seleccionado.tipo_ticket}")
+                print(f"Precio Actual: ${precio_actual}")
+                
+                nuevo_precio = float(input("Ingrese el nuevo precio: "))
+                tickets_repo.cambiar_precio_ticket(ticket_id, nuevo_precio)
+            
+            case 7:
+                print("Volviendo al menu principal...")
+                break
+            
+            case _:
+                print("Opcion invalida. Intente de nuevo.")
 
 
 def menu_consultas():
     print(f"\n{'='*50}")
-    print("\n--- FUNCIONALIDADES VARIAS / CONSULTAS ---")
+    print("\n--- CONSULTAS RECURRENTES ---")
     print("1. Ver atracciones de alta intensidad (>7)")
     print("2. Ver atracciones de larga duracion (>2 min)")
     print("3. Ver solo atracciones activas actualmente")
