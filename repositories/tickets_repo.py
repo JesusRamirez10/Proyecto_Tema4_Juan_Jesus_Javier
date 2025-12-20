@@ -46,6 +46,32 @@ def eliminar_ticket(ticket_id):
         return 0
     
 @staticmethod
+def eliminar_visitante_y_tickets(visitante_id):
+    try:
+        # 1. Buscamos si el visitante existe primero
+        visitante = VisitantesModel.get_or_none(VisitantesModel.id == visitante_id)
+        
+        if not visitante:
+            print(f" El visitante con ID {visitante_id} no existe.")
+            return False
+
+        # 2. Contamos cuántos tickets se van a borrar (para informar al usuario)
+        num_tickets = TicketsModel.select().where(TicketsModel.visitante == visitante).count()
+        
+        # 3. Borramos al visitante. 
+        # Al tener 'on_delete=CASCADE' en el modelo de Tickets, 
+        # la base de datos borrará los tickets automáticamente.
+        visitante.delete_instance(recursive=True)
+        
+        print(f" Visitante '{visitante.nombre}' eliminado correctamente.")
+        print(f" Se han eliminado {num_tickets} tickets asociados en cascada.")
+        return True
+
+    except Exception as e:
+        print(f" Error al eliminar en cascada: {e}")
+        return False
+    
+@staticmethod
 def marcar_ticket_usado(ticket_id):
     try:
         ticket = TicketsModel.get_by_id(ticket_id)

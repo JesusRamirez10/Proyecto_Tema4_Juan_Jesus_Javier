@@ -8,7 +8,7 @@ def menu():
     print("1. Seccion de Visitantes")
     print("2. Seccion de Atracciones")
     print("3. Seccion de Tickets")
-    print("4. Funcionalidades varias")
+    print("4. Consultas recurrentes ")
     print("5. Salir")
     input_opcion = int(input("Seleccione una opcion (1-5): "))
     match input_opcion:
@@ -103,17 +103,25 @@ def menu_visitantes():
             print(f"Visitante creado con nombre: {visitante_creado}{nombre}, email: {email}, altura: {altura}, preferencias: {preferencias_json}")
         case 2:
             visitantes = visitantes_repo.obtener_todos()
+            
             for v in visitantes:
                 print(f"ID: {v.id}, Nombre: {v.nombre}, Email: {v.email}, Altura: {v.altura}, Preferencias: {v.preferencias}")
             visitante_id = int(input("Ingrese el ID del visitante a eliminar: "))
-            exito = visitantes_repo.eliminar_visitante(visitante_id)
-            if exito:
-                print(f"Visitante con ID {visitante_id} eliminado exitosamente.")
+            opcion = input("¿ Quieres eliminar el visitante y sus tickets? (s/n): ").lower().strip()
+            if opcion == 's':
+                exito = tickets_repo.eliminar_visitante_y_tickets(visitante_id)
+                if exito:
+                    print(f"Visitante con ID {visitante_id} y sus tickets eliminado exitosamente.")
+                else:
+                    print(f"No se pudo eliminar el visitante  con ID {visitante_id} ni sus tickets.")
+            elif opcion == 'n':
+                exito = visitantes_repo.eliminar_visitante(visitante_id)
+                if exito:
+                    print(f"Visitante con ID {visitante_id} eliminado exitosamente.")
+                else:
+                    print(f"No se pudo eliminar el visitante con ID {visitante_id}.")
             else:
-                print(f"No se pudo eliminar el visitante con ID {visitante_id}.")
-
-            if exito:
-                print(f"Visitante con ID {visitante_id} eliminado exitosamente.")
+                print("Opcion incorrecta, no se eliminara ningún visitante")
         case 3:
             visitantes = visitantes_repo.obtener_todos()
             for v in visitantes:
