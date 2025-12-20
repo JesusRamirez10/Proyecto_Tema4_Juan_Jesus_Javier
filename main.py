@@ -4,7 +4,6 @@ from models import atracciones_model, visitantes_model, tickets_model
 from menus import menu
 
 
-
 def main():
 
     print("Base de datos inicializada.")

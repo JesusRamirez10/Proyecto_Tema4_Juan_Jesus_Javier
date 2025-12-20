@@ -35,6 +35,15 @@ def crear_ticket(visitante_id, fecha_visita, tipo_ticket, detalles_compra_json, 
     except Exception as e:
         print(f"Error desconocido al crear el ticket para visitante {visitante_id}: {e}")
         return None
+
+@staticmethod
+def eliminar_ticket(ticket_id):
+    try:
+        query = TicketsModel.delete().where(TicketsModel.id == ticket_id)
+        return query.execute() # Devuelve el número de filas borradas
+    except Exception as e:
+        print(f"Error al eliminar ticket: {e}")
+        return 0
     
 @staticmethod
 def marcar_ticket_usado(ticket_id):

@@ -304,34 +304,110 @@ def menu_tickets():
     print("4. Obtener ticket por ID")
     print("5. Cambiar precio de un ticket")
     print("6. Volver al Menú Principal")
-    input_opcion = int(input("Seleccione una opción (1-6): "))
+    
+    try:
+        input_opcion = int(input("Seleccione una opción (1-6): "))
+    except ValueError:
+        print("❌ Error: Ingrese un número válido.")
+        return
+
     match input_opcion:
+        case 1:
+            print("\n--- [1] Crear Nuevo Ticket ---")
+            try:
+                v_id = int(input("ID del Visitante: "))
+                # Puede ser nulo según tu modelo, pero aquí pedimos uno o 0 para None
+                a_id_input = int(input("ID de la Atracción (0 para ninguna): "))
+                a_id = a_id_input if a_id_input != 0 else None
+                
+                f_visita = input("Fecha de visita (YYYY-MM-DD): ")
+                print("Tipos: general, colegio, empleado")
+                t_ticket = input("Tipo de ticket: ").lower()
+                
+                # Datos para el BinaryJSONField de tu modelo
+                p_pago = float(input("Precio: "))
+                m_pago = input("Método de pago (efectivo/tarjeta): ")
+
+                detalles = {
+                    'precio': p_pago,
+                    'descuentos': [],
+                    'extras': [],
+                    'metodo_pago': m_pago
+                }
+
+                # Llamamos a tu repositorio
+                ticket = tickets_repo.crear_ticket(v_id, f_visita, t_ticket, detalles, a_id)
+                if ticket:
+                    print(f"✅ Ticket ID {ticket.id} creado para {ticket.visitante.nombre}")
+            except ValueError:
+                print("❌ Error: Datos numéricos incorrectos.")
+
+        case 2:
+            print("\n--- [2] Eliminar Ticket ---")
+            try:
+                t_id = int(input("Ingrese el ID del ticket a eliminar: "))
+                # Borrado directo usando el Modelo
+                query = tickets_model.delete().where(tickets_model.id == t_id)
+                if query.execute() > 0:
+                    print(f"✅ Ticket {t_id} eliminado.")
+                else:
+                    print(" No existe ese ID.")
+            except ValueError:
+                print(" ID inválido.")
+
         case 3:
-            print("\n--- Listado Completo de Tickets ---")
-            tickets = tickets_repo.obtener_todos()
-            for t in tickets:
-                print(f"ID: {t.id}, Tipo: {t.tipo_ticket}, Detalles: {t.detalles_compra}")
-        case 4:
-            ticket_id = int(input("Ingrese el ID del ticket a buscar: "))
-            ticket = tickets_repo.obtener_un_ticket(ticket_id)
-            if ticket:
-                print(f"Ticket: ID: {ticket.id}, Tipo: {ticket.tipo_ticket}, Detalles: {ticket.detalles_compra}")
-            else:
-                print(f"No se encontró ningún ticket con ID {ticket_id}.")
-        case 5:
-            print("\n--- Cambiar Precio de Ticket ---")
+            print("\n--- [3] Listado Completo de Tickets ---")
             tickets = tickets_repo.obtener_todos()
             if not tickets:
-                print("No hay tickets registrados.")
-                return
+                print("No hay tickets.")
             for t in tickets:
-                precio = t.detalles_compra.get('precio', 'No especificado')
-                print(f"ID: {t.id}, Tipo: {t.tipo_ticket}, Precio Actual: {precio}")
-            ticket_id = int(input("Ingrese el ID del ticket a modificar: "))
-            ticket_seleccionado = tickets_repo.obtener_un_ticket(ticket_id)
-            print(f"Ticket seleccionado: ID {ticket_seleccionado.id}, Tipo: {ticket_seleccionado.tipo_ticket}, Precio Actual: {ticket_seleccionado.detalles_compra.get('precio', 'No especificado')}")
-            nuevo_precio = float(input("Ingrese el nuevo precio: "))
-            tickets_repo.cambiar_precio_ticket(ticket_id, nuevo_precio)
+                # Acceso a campos según tu modelo
+                precio = t.detalles_compra.get('precio', 0)
+                estado = "USADO" if t.usado else "Pte. Uso"
+                print(f"ID: {t.id} | Tipo: {t.tipo_ticket} | Precio: {precio}€ | Estado: {estado}")
+
+        case 4:
+            print("\n--- [4] Obtener ticket por ID ---")
+            try:
+                t_id = int(input("ID del ticket: "))
+                t = tickets_repo.obtener_un_ticket(t_id)
+                if t:
+                    print(f"Ticket #{t.id} | Visitante: {t.visitante.nombre}")
+                    print(f"Atracción: {t.atraccion.nombre if t.atraccion else 'Cualquiera'}")
+                    print(f"Detalles JSON: {t.detalles_compra}")
+            except ValueError:
+                print(" ID inválido.")
+
+        case 5:
+            print("\n--- [5] Cambiar Precio de Ticket ---")
+            try:
+                # Primero listamos para que el usuario vea qué hay
+                tickets = tickets_repo.obtener_todos()
+                if not tickets:
+                    print("No hay tickets registrados.")
+                    return
+                
+                for t in tickets:
+                    precio = t.detalles_compra.get('precio', 0)
+                    print(f"ID: {t.id} | Tipo: {t.tipo_ticket} | Precio Actual: {precio}")
+
+                ticket_id = int(input("\nID del ticket a modificar: "))
+                ticket_sel = tickets_repo.obtener_un_ticket(ticket_id)
+                
+                if ticket_sel:
+                    # Mostramos datos actuales antes de pedir el nuevo
+                    precio_act = ticket_sel.detalles_compra.get('precio', 0)
+                    print(f"Seleccionado: ID {ticket_sel.id} (Precio actual: {precio_act})")
+                    
+                    nuevo_precio = float(input("Ingrese el nuevo precio: "))
+                    tickets_repo.cambiar_precio_ticket(ticket_id, nuevo_precio)
+                else:
+                    print(" ID no encontrado.")
+            except ValueError:
+                print(" Error en la entrada de datos.")
+
+        case 6:
+            return
 
 
 def menu_consultas():

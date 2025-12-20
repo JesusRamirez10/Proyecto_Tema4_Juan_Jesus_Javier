@@ -9,19 +9,38 @@ from models.tickets_model import TicketsModel
 @staticmethod
 def crear_visitante(nombre, email, altura, preferencias_json=None):
     try:
-        datos_visitante = {
+        # Definimos los campos que se usarán para CREAR si es que no existe
+        # Nota: 'email' no va aquí porque es el campo de búsqueda
+        defaults_visitante = {
             'nombre': nombre,
-            'email': email,
-            'altura': altura
+            'altura': altura,
+            'preferencias': preferencias_json
         }
         
-        if preferencias_json is not None:
-            datos_visitante['preferencias'] = preferencias_json
+        # get_or_create devuelve una tupla: (objeto, creado_si_o_no)
+        visitante, creado = VisitantesModel.get_or_create(
+            email=email.strip().lower(), # Limpiamos espacios y minúsculas
+            defaults=defaults_visitante
+        )
         
-        return VisitantesModel.create(**datos_visitante)
+        if creado:
+            print(f" Visitante '{nombre}' creado con éxito.")
+        else:
+            print(f"ℹ El visitante con email {email} ya existía. Recuperando datos...")
+            visitante.nombre = nombre
+            visitante.altura = altura
+            if preferencias_json:
+                visitante.preferencias = preferencias_json
+            visitante.save()
+
+        return visitante
         
+    except IntegrityError as e:
+        # Por si ocurre un error de base de datos no controlado por get_or_create
+        print(f" Error de integridad al manejar al visitante {nombre}: {e}")
+        return None
     except Exception as e:
-        print(f"Error insertando al visitante {nombre}: {e}")
+        print(f" Error inesperado: {e}")
         return None
     
 @staticmethod
