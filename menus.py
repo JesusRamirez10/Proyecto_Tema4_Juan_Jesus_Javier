@@ -169,7 +169,7 @@ def menu_atracciones():
     print("5. Ver Atracciones de Alta Intensidad (>7)")
     print("6. Ver Atracciones de Larga Duración (>2min)")
     print("7. Agregar una caracteristica a una atraccion")
-    print("7. Volver al Menú Principal")
+    print("8. Volver al Menú Principal")
     
     input_opcion = int(input("Seleccione una opción (1-7): "))
     
