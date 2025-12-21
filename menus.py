@@ -195,10 +195,49 @@ def menu_atracciones():
                     intensidad = 5
                 duracion = int(input("Duracion en segundos: "))
                 capacidad = int(input("Capacidad de personas: "))
+                print("Ingrese las características de la atracción separadas por comas:")
+                print("Ejemplos: loop, caída libre, giro 360, agua, oscuridad, efectos especiales")
+                caracteristicas_input = input("Características: ").strip()
+        
+                if caracteristicas_input:
+
+                    caracteristicas = [c.strip() for c in caracteristicas_input.split(',') if c.strip()]
+                else:
+                    caracteristicas = []
+                print("Detalles de horarios: ")
+                horario_apertura = input("Hora de apertura (HH:MM): ")
+                if not horario_apertura:
+                    horario_apertura = "09:00"
+                    print("Se usará por defecto la hora de apertura 09:00")
+                horario_cierre = input("Hora de cierre (HH:MM): ")
+                if not horario_cierre:
+                    horario_cierre = "21:00"
+                    print("Se usará por defecto la hora de cierre 21:00")
+                print("\n¿Desea agregar horarios de mantenimiento programados? (s/n): ")
+                agregar_mant = input("").strip().lower()
+        
+                mantenimientos = []
+                if agregar_mant == 's':
+                    print("   Ingrese los horarios de mantenimiento (formato: HH:MM-HH:MM)")
+                    print("   Deje en blanco para finalizar:")           
+                    while True:
+                        horario_mant = input("Horario: ").strip()
+                        if horario_mant.lower() == '':
+                            break
+                        if horario_mant:
+                            mantenimientos.append(horario_mant)
+                            print(f"Agregado: {horario_mant}")
+                horarios = {
+                    'apertura': horario_apertura,
+                    'cierre': horario_cierre,
+                    'mantenimiento': mantenimientos
+                }
                 detalles_json = {
                     "intensidad": intensidad,
                     "duracion_segundos": duracion,
-                    "capacidad": capacidad
+                    "capacidad_por_turno": capacidad,
+                    "caracteristicas": caracteristicas,
+                    "horarios": horarios
                 }
 
             nueva_atrac = atracciones_repo.crear_atraccion(nombre, tipo, altura_minima, detalles_json)
